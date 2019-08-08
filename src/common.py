@@ -64,8 +64,8 @@ def plot_pca(pcs, pc_plot_height, n_plots=1,
 	# Scatter plot of the data's principal components
 	k = 0
 	while k < n_plots :	
-		sns.scatterplot(x=pcs.components_[2*k],
-						y=pcs.components_[2*k+1], ax = axs[k])
+		axs[k].scatter(x=pcs.components_[2*k],
+						y=pcs.components_[2*k+1])
 		xlabel, ylabel = get_labels(k, 
 				   x_ratio=pcs.explained_variance_ratio_[2*k], 
 				   y_ratio=pcs.explained_variance_ratio_[2*k+1])
@@ -88,7 +88,7 @@ def plot_pca(pcs, pc_plot_height, n_plots=1,
 		# Set figure size
 		fig, ax = plt.subplots(1,1,figsize=(ratio*pc_plot_height, pc_plot_height))
 		# Plot
-		sns.scatterplot(x=pcs.components_[2*k], y=pcs.components_[2*k+1]);
+		ax.scatter(x=pcs.components_[2*k], y=pcs.components_[2*k+1]);
 		xlabel, ylabel = get_labels(k, 
 				   x_ratio=pcs.explained_variance_ratio_[2*k], 
 				   y_ratio=pcs.explained_variance_ratio_[2*k+1])
