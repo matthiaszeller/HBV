@@ -1,4 +1,9 @@
 
+from sklearn.decomposition import PCA
+from sklearn.impute import SimpleImputer
+import pandas as pd
+import numpy as np
+
 ################### VIRAL SEQ MODULE
 
 # Aim: perform computations on viral sequencing data
@@ -34,6 +39,27 @@ def collapse_variants(lst, pos=True):
 
 def index_by_pos(df, gene, pos):
 	pass
+
+
+def pca_impute(df, n_components, impute_strategy):
+	"""Returns a sklearn PCA object"""
+	# Impute missing values
+	df_pca = df.transpose()
+	imputer = SimpleImputer(strategy=impute_strategy)
+	imputed = imputer.fit_transform(df_pca)
+
+	# Rebuild the DataFrame with the imputed values
+	df_pca = pd.DataFrame(data=imputed, columns=df_pca.columns, 
+						  index=df_pca.index)
+
+	# PCA
+	pca = PCA(n_components = n_components)
+	pcs = pca.fit(df_pca.transpose())
+
+	print("Explained variance ratios:", pcs.explained_variance_ratio_)
+
+	return pcs
+
 
 ###################################
 

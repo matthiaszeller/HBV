@@ -1,5 +1,8 @@
 import os.path
 import pickle
+import seaborn as sns
+import matplotlib.pyplot as plt
+import numpy as np
 
 ####### MODULE COMMON
 
@@ -32,6 +35,30 @@ def manage_pickle(path, fun, args=None, verbose=True) :
 			pickler = pickle.Pickler(file)
 			pickler.dump(result)
 		return result
+
+
+
+def plot_pca(pcs, pc_plot_height):
+	sns.scatterplot(x=pcs.components_[0],
+					y=pcs.components_[1])
+
+	# Plot singular values
+	sns.barplot(x=np.arange(1, len(pcs.singular_values_)+1), 
+				y=pcs.singular_values_);
+	plt.xlabel('principal components')
+	plt.ylabel('singular values');
+	# Plot data w.r.t. the PCs
+	ratio = pcs.explained_variance_ratio_[0]/pcs.explained_variance_ratio_[1]
+	plt.subplots(1,1,figsize=(ratio*pc_plot_height, pc_plot_height))
+
+	sns.scatterplot(x=pcs.components_[0], y=pcs.components_[1]);
+	plt.xlabel("PC1 ({:.3}%)".
+		format(pcs.explained_variance_ratio_[0]*100))
+	plt.ylabel("PC2 ({:.3}%)".
+		format(pcs.explained_variance_ratio_[1]*100));
+
+##############################
+
 
 if __name__ == '__main__' :
 
