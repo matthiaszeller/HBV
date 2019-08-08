@@ -1,0 +1,16 @@
+
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/*
+*/.ipynb_checkpoints/*
+
+# Others
+.pversion
+
+# Python cache
+src/__pycache__/*
+
+# Data
+data/*
+tutorial/hapmap1/*
+
