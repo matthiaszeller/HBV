@@ -38,24 +38,64 @@ def manage_pickle(path, fun, args=None, verbose=True) :
 
 
 
-def plot_pca(pcs, pc_plot_height):
-	sns.scatterplot(x=pcs.components_[0],
-					y=pcs.components_[1])
+def plot_pca(pcs, pc_plot_height, n_plots=1, 
+			 plt_ratio=True, figsize=(10,3)):
+
+	# Define a function that writes axes labels
+	def get_labels(k, x_ratio, y_ratio):
+		# Set axis labels
+		# Note: we use 2*k+1 and 2*k+2 since humans prefer
+		# 		to count from 1 rather than 0.
+		return ( "PC{} ({:.3}%)".format(2*k+1, x_ratio*100),
+		 		 "PC{} ({:.3}%)".format(2*k+2, y_ratio*100))
+
+	################# Core of plot_pca function
 
 	# Plot singular values
 	sns.barplot(x=np.arange(1, len(pcs.singular_values_)+1), 
 				y=pcs.singular_values_);
 	plt.xlabel('principal components')
 	plt.ylabel('singular values');
-	# Plot data w.r.t. the PCs
-	ratio = pcs.explained_variance_ratio_[0]/pcs.explained_variance_ratio_[1]
-	plt.subplots(1,1,figsize=(ratio*pc_plot_height, pc_plot_height))
 
-	sns.scatterplot(x=pcs.components_[0], y=pcs.components_[1]);
-	plt.xlabel("PC1 ({:.3}%)".
-		format(pcs.explained_variance_ratio_[0]*100))
-	plt.ylabel("PC2 ({:.3}%)".
-		format(pcs.explained_variance_ratio_[1]*100));
+	# Manage the number of plots that must be drawn (parameter)
+	fig, axs = plt.subplots(1,n_plots, figsize=figsize)
+	if n_plots == 1: axs = [axs]
+
+	# Scatter plot of the data's principal components
+	k = 0
+	while k < n_plots :	
+		sns.scatterplot(x=pcs.components_[2*k],
+						y=pcs.components_[2*k+1], ax = axs[k])
+		xlabel, ylabel = get_labels(k, 
+				   x_ratio=pcs.explained_variance_ratio_[2*k], 
+				   y_ratio=pcs.explained_variance_ratio_[2*k+1])
+		axs[k].set_xlabel(xlabel)
+		axs[k].set_ylabel(ylabel)
+		k += 1
+
+	# Make some visual adjustments
+	if n_plots > 1: 
+		plt.subplots_adjust(wspace=0.4)
+
+	#### Plot with a consistent aspect ratio
+	if plt_ratio == False: # but only if user want it
+		return
+
+	k = 0
+	while k < n_plots :
+		# Compute this ratio
+		ratio = pcs.explained_variance_ratio_[2*k]/pcs.explained_variance_ratio_[2*k+1]
+		# Set figure size
+		fig, ax = plt.subplots(1,1,figsize=(ratio*pc_plot_height, pc_plot_height))
+		# Plot
+		sns.scatterplot(x=pcs.components_[2*k], y=pcs.components_[2*k+1]);
+		xlabel, ylabel = get_labels(k, 
+				   x_ratio=pcs.explained_variance_ratio_[2*k], 
+				   y_ratio=pcs.explained_variance_ratio_[2*k+1])
+		ax.set_xlabel(xlabel); ax.set_ylabel(ylabel)
+
+		k += 1
+
 
 ##############################
 
