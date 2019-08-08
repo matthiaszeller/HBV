@@ -11,6 +11,13 @@ import numpy as np
 
 ####### FUNCTIONS
 
+def write_binary(path, obj):
+	with open(path, 'wb') as file:
+		pickler = pickle.Pickler(file)
+		pickler.dump(obj)
+
+	print("write_binary(): successfully written in '{}'".format(path))
+
 def manage_pickle(path, fun, args=None, verbose=True) :
 	"""Allows to store results of hard-to-compute processes. Note: this can only manage computations
 	that are directly returned by a function (input fun).
