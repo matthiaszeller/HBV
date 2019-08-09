@@ -86,5 +86,4 @@ if __name__ == '__main__' :
 	print()
 	print(df)
 
-	pca = pca_impute(df, 2, impute_strategy='mean')
-	
+	pca = pca_impute(df, 2, impute_strategy='iterative')
