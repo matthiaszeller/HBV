@@ -1,13 +1,15 @@
-import os.path
-import pickle
-import seaborn as sns
-import matplotlib.pyplot as plt
-import numpy as np
 
 ####### MODULE COMMON
 
 # Aim: put together functions that can be useful in several contexts
 
+
+######## IMPORTS
+import os.path
+import pickle
+import seaborn as sns
+import matplotlib.pyplot as plt
+import numpy as np
 
 ####### FUNCTIONS
 
@@ -19,8 +21,9 @@ def write_binary(path, obj):
 	print("write_binary(): successfully written in '{}'".format(path))
 
 def manage_pickle(path, fun, args=None, verbose=True) :
-	"""Allows to store results of hard-to-compute processes. Note: this can only manage computations
-	that are directly returned by a function (input fun).
+	"""Store results of hard-to-compute processes. 
+
+	Note: this can only manage computations that are directly returned by a function (input fun).
 	Uses pickle to write and read binary files.
 	If the file specified by 'path' exists, returns the content of the file.
 	Otherwise, the result of the function fun is returned AND stored in a binary file.
@@ -46,7 +49,7 @@ def manage_pickle(path, fun, args=None, verbose=True) :
 
 
 def plot_pca(pcs, pc_plot_height, n_plots=1, 
-			 plt_ratio=True, figsize=(10,3)):
+			 plt_ratio=True, figsize=(10,3), hue=None):
 
 	# Define a function that writes axes labels
 	def get_labels(k, x_ratio, y_ratio):
@@ -71,8 +74,11 @@ def plot_pca(pcs, pc_plot_height, n_plots=1,
 	# Scatter plot of the data's principal components
 	k = 0
 	while k < n_plots :	
-		axs[k].scatter(x=pcs.components_[2*k],
-						y=pcs.components_[2*k+1])
+		#axs[k].scatter(x=pcs.components_[2*k],
+		#				y=pcs.components_[2*k+1])
+		sns.scatterplot(x=pcs.components_[2*k],
+						y=pcs.components_[2*k+1], 
+						ax=axs[k], hue=hue)
 		xlabel, ylabel = get_labels(k, 
 				   x_ratio=pcs.explained_variance_ratio_[2*k], 
 				   y_ratio=pcs.explained_variance_ratio_[2*k+1])
@@ -95,7 +101,9 @@ def plot_pca(pcs, pc_plot_height, n_plots=1,
 		# Set figure size
 		fig, ax = plt.subplots(1,1,figsize=(ratio*pc_plot_height, pc_plot_height))
 		# Plot
-		ax.scatter(x=pcs.components_[2*k], y=pcs.components_[2*k+1]);
+		#ax.scatter(x=pcs.components_[2*k], y=pcs.components_[2*k+1]);
+		sns.scatterplot(x=pcs.components_[2*k], y=pcs.components_[2*k+1],
+						ax=ax, hue=hue)
 		xlabel, ylabel = get_labels(k, 
 				   x_ratio=pcs.explained_variance_ratio_[2*k], 
 				   y_ratio=pcs.explained_variance_ratio_[2*k+1])
