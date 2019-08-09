@@ -2,12 +2,16 @@
 
 ################### PATH MANAGEMENT
 
+PATH_DATA = "data/"
+
+### RAW DATA
+PATH_RAW_DATA = PATH_DATA+"raw/"
+PATH_CLINICAL_RAW_DATA = PATH_RAW_DATA+"to_fellay_manifest.csv"
+
 # Don't forget path are relative to the root directory
 
-PATH_VIRAL_DATA = "data/viral_data"
-PATH_CLINICAL_DATA = "data/clinical_data"
-
-
+PATH_VIRAL_DATA = PATH_DATA+"viral_data"
+PATH_CLINICAL_DATA = PATH_DATA+"clinical_data"
 
 ################### DATA MANAGEMENT
 
