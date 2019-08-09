@@ -49,7 +49,11 @@ def manage_pickle(path, fun, args=None, verbose=True) :
 
 
 def plot_pca(pcs, pc_plot_height, n_plots=1, 
-			 plt_ratio=True, figsize=(10,3), hue=None):
+			 plt_ratio=True, figsize=(10,3), 
+			 hue=None, scaled_only=False, bbox_to_anchor=None,
+			 singular_values=True):
+	"""TO DO: implement bbox_to_anchor for n_plots>1 
+	if scaled_only=False"""
 
 	# Define a function that writes axes labels
 	def get_labels(k, x_ratio, y_ratio):
@@ -62,29 +66,33 @@ def plot_pca(pcs, pc_plot_height, n_plots=1,
 	################# Core of plot_pca function
 
 	# Plot singular values
-	sns.barplot(x=np.arange(1, len(pcs.singular_values_)+1), 
-				y=pcs.singular_values_);
-	plt.xlabel('principal components')
-	plt.ylabel('singular values');
+	if singular_values == True:
+		sns.barplot(x=np.arange(1, len(pcs.singular_values_)+1), 
+					y=pcs.singular_values_);
+		plt.xlabel('principal components')
+		plt.ylabel('singular values');
 
-	# Manage the number of plots that must be drawn (parameter)
-	fig, axs = plt.subplots(1,n_plots, figsize=figsize)
-	if n_plots == 1: axs = [axs]
+	if scaled_only == False:
+		# NOT ON SCALEs
+		# Manage the number of plots that must be drawn (parameter)
+		fig, axs = plt.subplots(1,n_plots, figsize=figsize)
+		if n_plots == 1: axs = [axs]
 
-	# Scatter plot of the data's principal components
-	k = 0
-	while k < n_plots :	
-		#axs[k].scatter(x=pcs.components_[2*k],
-		#				y=pcs.components_[2*k+1])
-		sns.scatterplot(x=pcs.components_[2*k],
-						y=pcs.components_[2*k+1], 
-						ax=axs[k], hue=hue)
-		xlabel, ylabel = get_labels(k, 
-				   x_ratio=pcs.explained_variance_ratio_[2*k], 
-				   y_ratio=pcs.explained_variance_ratio_[2*k+1])
-		axs[k].set_xlabel(xlabel)
-		axs[k].set_ylabel(ylabel)
-		k += 1
+		# Scatter plot of the data's principal components
+		k = 0
+		while k < n_plots :	
+			#axs[k].scatter(x=pcs.components_[2*k],
+			#				y=pcs.components_[2*k+1])
+			sns.scatterplot(x=pcs.components_[2*k],
+							y=pcs.components_[2*k+1], 
+							ax=axs[k], hue=hue)
+			xlabel, ylabel = get_labels(k, 
+					   x_ratio=pcs.explained_variance_ratio_[2*k], 
+					   y_ratio=pcs.explained_variance_ratio_[2*k+1])
+			axs[k].set_xlabel(xlabel)
+			axs[k].set_ylabel(ylabel)
+
+			k += 1
 
 	# Make some visual adjustments
 	if n_plots > 1: 
@@ -102,14 +110,20 @@ def plot_pca(pcs, pc_plot_height, n_plots=1,
 		fig, ax = plt.subplots(1,1,figsize=(ratio*pc_plot_height, pc_plot_height))
 		# Plot
 		#ax.scatter(x=pcs.components_[2*k], y=pcs.components_[2*k+1]);
+		# Put a legend only if it's the last plot
+		lg = False if k<n_plots-1 else 'brief'
 		sns.scatterplot(x=pcs.components_[2*k], y=pcs.components_[2*k+1],
-						ax=ax, hue=hue)
+						ax=ax, hue=hue, legend=lg)
 		xlabel, ylabel = get_labels(k, 
 				   x_ratio=pcs.explained_variance_ratio_[2*k], 
 				   y_ratio=pcs.explained_variance_ratio_[2*k+1])
 		ax.set_xlabel(xlabel); ax.set_ylabel(ylabel)
-
 		k += 1
+
+	# Reset position of the legend
+	if bbox_to_anchor is not None and hue is not None:
+		plt.gca().legend(bbox_to_anchor=bbox_to_anchor, 
+			loc=2, borderaxespad=0.);
 
 
 ##############################
