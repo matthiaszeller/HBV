@@ -7,11 +7,11 @@ PATH_DATA = "data/"
 ### RAW DATA
 PATH_RAW_DATA = PATH_DATA+"raw/"
 PATH_CLINICAL_RAW_DATA = PATH_RAW_DATA+"to_fellay_manifest.csv"
-
-# Don't forget path are relative to the root directory
+PATH_VIRAL_RAW_DATA = PATH_RAW_DATA+"viral_seq/OUT_aa_binary_table.txt"
 
 PATH_VIRAL_DATA = PATH_DATA+"viral_data"
 PATH_CLINICAL_DATA = PATH_DATA+"clinical_data"
+
 
 ################### DATA MANAGEMENT
 
