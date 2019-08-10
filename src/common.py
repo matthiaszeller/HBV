@@ -64,6 +64,7 @@ def plot_pca(pcs, pc_plot_height, n_plots=1,
 		 		 "PC{} ({:.3}%)".format(2*k+2, y_ratio*100))
 
 	################# Core of plot_pca function
+	axes_labels_fontsize = 14
 
 	# Plot singular values
 	if singular_values == True:
@@ -89,8 +90,8 @@ def plot_pca(pcs, pc_plot_height, n_plots=1,
 			xlabel, ylabel = get_labels(k, 
 					   x_ratio=pcs.explained_variance_ratio_[2*k], 
 					   y_ratio=pcs.explained_variance_ratio_[2*k+1])
-			axs[k].set_xlabel(xlabel)
-			axs[k].set_ylabel(ylabel)
+			axs[k].set_xlabel(xlabel, fontsize=axes_labels_fontsize);
+			axs[k].set_ylabel(ylabel, fontsize=axes_labels_fontsize);
 
 			k += 1
 
@@ -117,7 +118,8 @@ def plot_pca(pcs, pc_plot_height, n_plots=1,
 		xlabel, ylabel = get_labels(k, 
 				   x_ratio=pcs.explained_variance_ratio_[2*k], 
 				   y_ratio=pcs.explained_variance_ratio_[2*k+1])
-		ax.set_xlabel(xlabel); ax.set_ylabel(ylabel)
+		ax.set_xlabel(xlabel, fontsize=axes_labels_fontsize); 
+		ax.set_ylabel(ylabel, fontsize=axes_labels_fontsize);
 		k += 1
 
 	# Reset position of the legend

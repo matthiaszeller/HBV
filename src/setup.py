@@ -1,7 +1,13 @@
 
+###### ###### ###### ###### IMPORTS
 
-################### PATH MANAGEMENT
 
+
+###### ###### ###### ###### PATH MANAGEMENT
+
+PATH_PROJECT = "/home/mazeller/HBV/"
+
+### ### DATA
 PATH_DATA = "data/"
 
 ### RAW DATA
@@ -9,12 +15,21 @@ PATH_RAW_DATA = PATH_DATA+"raw/"
 PATH_CLINICAL_RAW_DATA = PATH_RAW_DATA+"to_fellay_manifest.csv"
 PATH_VIRAL_RAW_DATA = PATH_RAW_DATA+"viral_seq/OUT_aa_binary_table.txt"
 
+PATH_HOST_RAW_DATA = PATH_RAW_DATA+"wes_plink/"
+PATH_HOST_RAW_PLINK_DATA = PATH_HOST_RAW_DATA+"hbv_gilead"
+
 ### PROCESSED DATA
 PATH_VIRAL_DATA = PATH_DATA+"viral_data"
 PATH_CLINICAL_DATA = PATH_DATA+"clinical_data"
 PATH_VIRAL_GROUPED_DATA = PATH_DATA+"viral_seq_grouped"
 
-################### DATA MANAGEMENT
+### ### SOURCES
+PATH_SRC = "src/"
+
+### PLINK SCRIPTS
+PATH_SRC_PLINK = PATH_SRC+"plink/"
+
+###### ###### ###### ###### DATA MANAGEMENT
 
 ###### DATA CLEANING
 
