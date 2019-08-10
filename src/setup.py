@@ -9,9 +9,10 @@ PATH_RAW_DATA = PATH_DATA+"raw/"
 PATH_CLINICAL_RAW_DATA = PATH_RAW_DATA+"to_fellay_manifest.csv"
 PATH_VIRAL_RAW_DATA = PATH_RAW_DATA+"viral_seq/OUT_aa_binary_table.txt"
 
+### PROCESSED DATA
 PATH_VIRAL_DATA = PATH_DATA+"viral_data"
 PATH_CLINICAL_DATA = PATH_DATA+"clinical_data"
-
+PATH_VIRAL_GROUPED_DATA = PATH_DATA+"viral_seq_grouped"
 
 ################### DATA MANAGEMENT
 
