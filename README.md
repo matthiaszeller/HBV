@@ -2,6 +2,8 @@
 
 ## Automatically run notebooks
 
+Method to execute all notebooks in order and output the result as notebooks converted to html.
+
 1. `cd` into the root directory of the project
 1. run the bash script `src/run.sh`
 1. look at the results in the `results/` directory
@@ -23,13 +25,3 @@ The order matters: some notebooks store processed data,
 * Plink and Python notebook: how to import plink files into python.
 * Scitas tutorial
 * tutorial/HapMap notebook: processing example data (official tutorial).
-
-## TO DO / OPTIMIZE:
-
-* **Find a way to manage paths **
-* Assemble scripts together ?
-* Make a kind of setup file (python, bash, both ???)
-* Manage figure storage (some kind of option at beggining of the notebook, or make it separately again ??)
-
-If more time:
-* Look at makefiles
