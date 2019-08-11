@@ -6,6 +6,9 @@
 
 # Others
 .pversion
+#
+opt/*
+tmp/*
 
 # Python cache
 src/__pycache__/*
@@ -13,4 +16,5 @@ src/__pycache__/*
 # Data
 data/*
 tutorial/hapmap1/*
+results/*
 
