@@ -1,11 +1,12 @@
+#!/usr/bin/env python
 
 ###### ###### ###### ###### IMPORTS
 
-
+import pandas as pd
 
 ###### ###### ###### ###### PATH MANAGEMENT
 
-PATH_PROJECT = "/home/mazeller/HBV/"
+PATH_PROJECT="/home/mazeller/HBV/"
 
 ### ### DATA
 PATH_DATA = "data/"
@@ -18,16 +19,24 @@ PATH_VIRAL_RAW_DATA = PATH_RAW_DATA+"viral_seq/OUT_aa_binary_table.txt"
 PATH_HOST_RAW_DATA = PATH_RAW_DATA+"wes_plink/"
 PATH_HOST_RAW_PLINK_DATA = PATH_HOST_RAW_DATA+"hbv_gilead"
 
+### REDUCED DATA
+PATH_HOST_RAW_PLINK_REDUCED = PATH_HOST_RAW_DATA+"host_reduced"
+
 ### PROCESSED DATA
 PATH_VIRAL_DATA = PATH_DATA+"viral_data"
 PATH_CLINICAL_DATA = PATH_DATA+"clinical_data"
 PATH_VIRAL_GROUPED_DATA = PATH_DATA+"viral_seq_grouped"
+
+PATH_PLINK_DATA = PATH_DATA+"plink/"
 
 ### ### SOURCES
 PATH_SRC = "src/"
 
 ### PLINK SCRIPTS
 PATH_SRC_PLINK = PATH_SRC+"plink/"
+
+### ### SPECIAL
+PATH_NULL = "data/null"
 
 ###### ###### ###### ###### DATA MANAGEMENT
 
