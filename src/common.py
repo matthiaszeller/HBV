@@ -10,6 +10,10 @@ import pickle
 import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
+
+if __name__ != '__main__' :
+	from src import setup
 
 ####### FUNCTIONS
 
@@ -128,11 +132,44 @@ def plot_pca(pcs, pc_plot_height, n_plots=1,
 			loc=2, borderaxespad=0.);
 
 
+def convert_to_plink_phenotype(path, out, id_col_name, cols) :
+	"""Convert a pickled DataFrame into a plink-readable format. 
+	Inputs: - path to the pickled dataframe (binary file written with pickle package)
+			- out: output file path
+			- id_col_name: the column in the DataFrame that contains the relevant ID
+			- cols: columns of the dataframe to include in the phenotype file
+	Output: None, but write a text file in the specified output path.
+	Format: the file begins with two columns (identical in this study) FID and IID, with extra columns depending on the 'cols' provided."""
+	# Check required values
+	if not os.path.exists(path):
+		print("ERROR: convert_to_plink_phenotype, file path does not exist")
+
+	with open(path, 'rb') as file:
+		df_pickle = pickle.load(file)
+
+	df = pd.DataFrame()
+
+	for col in cols:
+		df.insert(column=col, value=df_pickle[col], loc=0)
+	# Create the two id columns (FID and IID)
+	df.insert(column='IID', value=df_pickle[id_col_name], loc=0)
+	df.insert(column='FID', value=df_pickle[id_col_name], loc=0)
+	# Convert to text
+	txt = df.to_csv(sep='\t', index=False, 
+							 na_rep=setup.PLINK_NA_VALUE_REPRESENTATION)
+
+	with open(out, 'w') as file:
+		file.write(txt)
+	print("Successfully written '{}'".format(out))
+
+
+
 ##############################
 
 
 if __name__ == '__main__' :
 
+	###################################### MANAGE PICLLE
 	n = 4
 	path = "test_manage_pickle"
 
@@ -145,3 +182,27 @@ if __name__ == '__main__' :
 		return 0
 	result_of_computation = manage_pickle('test_manage_pickle2',
 										foo2)
+
+	###################################### CONVERT TO PLINK FORMAT
+	import pandas as pd
+	import setup
+
+	# Create the dataframe
+	def test_convert_to_plink_phenotype():
+		df = pd.DataFrame()
+		rd = np.random.rand(4)
+		rd[2] = np.nan
+		df.insert(loc=0, column='var2', value=rd)
+		df.insert(loc=0, column='var1', value=np.random.rand(4))
+		df.insert(loc=0, column='id', value=['word_id2', 'word_id10', 'word_id000', 'word_id3'])
+		return df
+	# Pickle the file
+	os.system('mkdir ../data/test')
+	path_test = '../'+setup.PATH_TEST
+	df = manage_pickle(path_test+'convert_to_plink_phenotype', fun=test_convert_to_plink_phenotype)
+
+	# Use the function
+	print(df)
+	print()
+	convert_to_plink_phenotype(path=path_test+'convert_to_plink_phenotype', out=path_test+'converted',
+							   id_col_name='id', cols=['var2', 'var1'])

@@ -40,3 +40,7 @@ def run_plink(command, file, out, extension, plink2=True, verbose_err=True, forc
     if stderr and verbose_err : print(stderr)
     # Return the outputs
     return stdout, stderr
+
+
+def join_position(df):
+    pass

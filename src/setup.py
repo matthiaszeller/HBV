@@ -27,7 +27,10 @@ PATH_VIRAL_DATA = PATH_DATA+"viral_data"
 PATH_CLINICAL_DATA = PATH_DATA+"clinical_data"
 PATH_VIRAL_GROUPED_DATA = PATH_DATA+"viral_seq_grouped"
 
+# Host data
 PATH_PLINK_DATA = PATH_DATA+"plink/"
+PATH_SNP_MAP = PATH_DATA+'SNP_dict'
+PATH_CLINICAL_PLINK_PHENOTYPE = PATH_PLINK_DATA+'pheno.txt'
 
 ### ### SOURCES
 PATH_SRC = "src/"
@@ -36,7 +39,10 @@ PATH_SRC = "src/"
 PATH_SRC_PLINK = PATH_SRC+"plink/"
 
 ### ### SPECIAL
-PATH_NULL = "data/null"
+PATH_NULL = PATH_DATA+"null"
+
+### ### TESTS
+PATH_TEST = PATH_DATA+'test/'
 
 ###### ###### ###### ###### DATA MANAGEMENT
 
@@ -50,3 +56,9 @@ VARIANTS_THRESHOLD_FREQUENCY = 0.05 # bilateral
 
 ###### MERGING DATA
 VIRAL_CLINICAL_VARIABLES = ['gilead_id', 'GT', 'RACE', 'COUNTRY']
+
+
+###### DATA ENCODING
+
+# For plink-readable format
+PLINK_NA_VALUE_REPRESENTATION = -9
