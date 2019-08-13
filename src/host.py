@@ -4,6 +4,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import pickle
 
 if __name__ != '__main__':
     from src import setup
@@ -72,7 +73,7 @@ def plot_plink_pca(path, n_pcs=0, scaled=True, h=3, hue_col=None,
                    by default, this value is 0 (i.e. only eigenvalues are plotted)
            - scaled: True makes the plot to have consistent ratio with explained variances by each PC
            - h: height of the plot(s). If scaled==True: width consistent with ratio, otherwise width=height
-           - hue_col: column name of a categorical pandas.Series to color the data points.
+           - hue_col: column name of a categorical pandas.Series from the clinical dataframe.
            - path_hue: path to the pickled DataFrame binary file containing hue_col
     Output: None"""
     ext1, ext2 = '.eigenval', '.eigenvec'
@@ -81,10 +82,10 @@ def plot_plink_pca(path, n_pcs=0, scaled=True, h=3, hue_col=None,
 
     if not os.path.exists(path+ext1) or not os.path.exists(path+ext2):
         raise ValueError("plot_plink_pca: the path {} does not have any .eigenval or .eigenval files.".format(path))
-    if hue != None and path_hue == None:
-        raise ValueError("hue_col provided, but no path_hue specified to load a DataFrame")
-    if hue == None and path_hue != None:
-        raise ValueError("path_hue provided, but no hue_col specified to select a column of the DataFrame")
+    #if hue != None and path_hue == None:
+    #    raise ValueError("hue_col provided, but no path_hue specified to load a DataFrame")
+    #if hue == None and path_hue != None:
+    #    raise ValueError("path_hue provided, but no hue_col specified to select a column of the DataFrame")
 
     ######################## EIGENVALUES
 
@@ -116,11 +117,17 @@ def plot_plink_pca(path, n_pcs=0, scaled=True, h=3, hue_col=None,
     df_pca = pd.read_csv(path+ext2, sep='\s+', usecols= ['IID']+txt_pcs )
 
     ###### LOADING HUE
-    if path_hue != None : 
-        # in this block, hue_col != None
-        with open(path_hue, 'rb') as file:
-            df = pickle.load(file)
-        df = df[hue_col]
+    hue = None
+    if hue_col != None:
+        # Load dataframe
+        with open(setup.PATH_CLINICAL_DATA, 'rb') as file:
+            df_clinical = pickle.load(file)
+        df_clinical = df_clinical[[setup.ID_IGM_CLINICAL_DF, hue_col]]
+        df_clinical.set_index(setup.ID_IGM_CLINICAL_DF, inplace=True)
+        df_pca.set_index('IID', inplace=True)
+        print(df_pca.join(other=df_clinical))
+        df_pca = df_pca.join(other=df_clinical, lsuffix='test',rsuffix='s')
+        hue = df_pca[hue_col]
 
     ###### PLOTTING
     def get_labels(i): # returns a 2-tuple
@@ -133,7 +140,7 @@ def plot_plink_pca(path, n_pcs=0, scaled=True, h=3, hue_col=None,
         width = vars_expl[i]/vars_expl[i+1] * h if scaled else h
         fig, ax = plt.subplots(1,1, figsize=(width, h))
         # Scatter plot
-        sns.scatterplot(x=df_pca[txt_pcs[i]], y=df_pca[txt_pcs[i+1]])
+        sns.scatterplot(x=df_pca[txt_pcs[i]], y=df_pca[txt_pcs[i+1]], hue=hue)
         # Axe labels
         xlabel, ylabel = get_labels(i)
         ax.set_xlabel(xlabel); ax.set_ylabel(ylabel);
@@ -145,7 +152,9 @@ def plot_plink_pca(path, n_pcs=0, scaled=True, h=3, hue_col=None,
 
 if __name__ == '__main__' :
 
+    import setup
     # plot_plink_pca
-    plot_plink_pca("../data/plink/host_geno_clean_pca", n_pcs=2)
+    plot_plink_pca("../data/plink/host_geno_clean", n_pcs=2,
+                   hue_col='GT')
     plt.show()
     print(help(plot_plink_pca))

@@ -44,10 +44,15 @@ PATH_TEST = PATH_DATA+'test/'
 
 ############ SPECIAL
 PATH_NULL = PATH_DATA+"null"
+PATH_INTERSECTING_INDIVIDUALS = PATH_DATA+'intersecting_ids'
 
 ########################################
 ########### DATA MANAGEMENT ############
 ########################################
+
+ID_IGM_CLINICAL_DF = 'IGM_ID'
+ID_GS_CLINICAL_DF = 'gilead_id'
+ID_GS_VIRAL_DF = 'id'
 
 ############ VIRAL DATA CLEANING
 
@@ -61,13 +66,11 @@ THRESHOLD_MISSING_INDIVIDUALS = 0.1
 THRESHOLD_MISSING_VARIANTS = 0.01
 
 ###### MERGING DATA
-VIRAL_CLINICAL_VARIABLES = ['gilead_id', 'GT', 'RACE', 'COUNTRY']
+VIRAL_CLINICAL_VARIABLES = [ID_GS_CLINICAL_DF, 'GT', 'RACE', 'COUNTRY']
+HOST_CLINICAL_VARIABLES = [ID_IGM_CLINICAL_DF, 'GT', 'RACE', 'COUNTRY']
 
 ############ DATA ENCODING
 # For plink-readable format
 PLINK_NA_VALUE_REPRESENTATION = -9
 
 ############ 
-ID_IGM_CLINICAL_DF = 'IGM_ID'
-ID_GS_CLINICAL_DF = 'gilead_id'
-ID_GS_VIRAL_DF = 'id'
