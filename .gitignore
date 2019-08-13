@@ -16,5 +16,5 @@ src/__pycache__/*
 # Data
 data/*
 tutorial/hapmap1/*
-results/*
+
 
