@@ -5,16 +5,24 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-def run_shell_command(cmd_lst) :
+if __name__ != '__main__':
+    from src import setup
+
+def run_shell_command(cmd_lst, verbose=False) :
     """Returns a tuple: (stdout, stderr).
     Note: you must separate the options from their values.
     Note: the output is returned when all calculations are done
     Example: you want 'plink --bfile <file> ...'. Must provide cmd_list=['plink', '--bfile', '<file>', ...]"""
+    if verbose:
+        t = ''
+        for c in cmd_lst: t += c+' '
+        print("Running '{}'".format(t))
     process = subprocess.Popen(cmd_lst, stdout=subprocess.PIPE, 
                                stderr=subprocess.PIPE, universal_newlines=True)
     return process.communicate()
 
-def run_plink(command, file, out, extension, plink2=True, verbose_err=True, force=False):
+def run_plink(command, file, out, extension, plink2=True, verbose=True, force=False,
+              log_name=None):
     """Returns a tuple: (stdout, stderr).
     Note: command input must have the options/values separated by a single space"""
     # Check is result already exist
@@ -39,10 +47,15 @@ def run_plink(command, file, out, extension, plink2=True, verbose_err=True, forc
         for c in commands :
             lst.append(c)
         # Provide values to the run_shell_command function
-        stdout, stderr = run_shell_command(lst)
+        stdout, stderr = run_shell_command(lst, verbose)
     # Display errors
-    if stderr and verbose_err : print(stderr)
+    if stderr and verbose : print(stderr)
     # Return the outputs
+    if log_name != None and not stderr:
+        path_log = setup.PATH_PLINK_LOG+log_name+'.log'
+        with open(path_log, 'w') as file:
+            file.write(stdout)
+        if verbose: print("Log written to '{}'".format(path_log))
     return stdout, stderr
 
 
