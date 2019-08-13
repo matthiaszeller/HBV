@@ -163,29 +163,112 @@ def convert_to_plink_phenotype(path, out, id_col_name, cols) :
 	print("Successfully written '{}'".format(out))
 
 
+def find_individuals(fam, clinical, viral, igm=True, verbose=True,
+					 df=True):
+	"""Extract (from files) individual from each of the three datasets to create a union and an intersection list.
+	Input: - fam: path to the plink .fam file (extension '.fam' is optional)
+		   - clinical: path to the pickled DataFrame containing clinical data
+		   - viral: path to the pickled DataFrame containing viral data
+		   - igm: return the ids in the IGM format (True), or GS-US format
+		   - out: if False, returns a list of tuples (id_igm, id_gs), otherwise returns a DataFrame
+	Note: the id column names are automatically found, specified in the setup.py file
+	Output: list of tuples (id_igm, id_gs)"""
 
-##############################
+	##################### PARAMETERS (process, errors)
 
+	if fam[-4:] != '.fam': fam += '.fam'
+	if not os.path.exists(fam) : raise ValueError("'{}' does not exist".format(fam))
+	if not os.path.exists(clinical) : raise ValueError("'{}' does not exist".format(clinical))
+	if not os.path.exists(viral) : raise ValueError("'{}' does not exist".format(viral))
+
+	##################### READ FILES AND EXTRACT
+	# Note: here we simply extract python lists (no dataframes or series)
+
+	####### PLINK FAM FILE
+	inds_fam = pd.read_csv(fam, usecols=[0], sep='\s+').values
+
+	####### BINARY CLINICAL DATAFRAME
+	with open(clinical, 'rb') as file :
+		df_clinical = pickle.load(file)
+	inds_clinical_IGM = df_clinical[setup.ID_IGM_CLINICAL_DF].values
+	inds_clinical_GS = df_clinical[setup.ID_GS_CLINICAL_DF].values
+	df_clinical = None
+
+	####### BINARY VIRAL DATAFRAME
+	with open(viral, 'rb') as file :
+		df_viral = pickle.load(file)
+	inds_viral = df_viral[setup.ID_GS_VIRAL_DF].values
+	df_viral = None
+
+	##################### PAIRWISE INTERSECTION AND UNION
+	# Only clinical data has the two IDs
+	inter_clinical_viral, comm1, _ = np.intersect1d(inds_clinical_GS, inds_viral, 
+										  assume_unique=True, return_indices=True)
+	inter_clinical_geno  = np.intersect1d(inds_clinical_IGM, inds_fam, 
+										  assume_unique=True, return_indices=False)
+	union_clinical_viral = np.union1d(inds_clinical_GS, inds_viral)
+	union_clinical_geno  = np.union1d(inds_clinical_IGM, inds_fam)
+
+	##################### GLOBAL INTERSECTION AND UNION
+	# Have the intersection list clinical<->viral but with IGM ids
+	# Since inds_clinical_IGM and inds_clinical_GS have the elements IN THE SAME ORDER, it's fine
+	inter_clinical_viral_igm = inds_clinical_IGM[comm1]
+	inter_igm = np.intersect1d(inter_clinical_viral_igm, inter_clinical_geno, 
+							   assume_unique=True)
+	# Since inter_igm is the global intersection, we know those items belong to any of the 3 lists
+	inter_gs = []
+	for igm in inter_igm :
+		#print("found ", np.where(inds_clinical_IGM == igm)[0], inds_clinical_GS[ np.where(inds_clinical_IGM == igm)[0] ])
+		#print(type(inds_clinical_GS[ np.where(inds_clinical_IGM == igm)[0] ]))
+		inter_gs += inds_clinical_GS[ np.where(inds_clinical_IGM == igm)[0] ].tolist()
+
+	if verbose:
+		print("{} in clinical".format(len(inds_clinical_IGM)))
+		#print("{} in clinical [GS]".format(len(inds_clinical_GS)))
+		print("{} in viral".format(len(inds_viral)))
+		print("{} in host genotypes".format(len(inds_fam)))
+		print("Viral and clinical ids:\t{} in intersection, {} in union"
+			  .format(len(inter_clinical_geno), len(union_clinical_geno)))
+		print("Geno and clinical ids :\t{} in intersection, {} in union"
+			  .format(len(inter_clinical_viral), len(union_clinical_viral)))
+		print("Global intersection :", len(inter_igm))
+
+	N = len(inter_igm)
+	if df==False:
+		return [ (inter_igm[i], inter_gs[i]) for i in np.arange(N) ]
+	df = pd.DataFrame()
+	df.insert(column=setup.ID_IGM_CLINICAL_DF, loc=0, value=inter_igm)
+	df.insert(column=setup.ID_GS_CLINICAL_DF, loc=0, value=inter_gs)
+	return df
+
+
+############################################################
+# ---------------------- TESTING ------------------------- #
+############################################################
 
 if __name__ == '__main__' :
-
-	###################################### MANAGE PICLLE
-	n = 4
-	path = "test_manage_pickle"
-
-	def foo(x):
-		return x**2;
-
-	result_of_computation = manage_pickle(path, foo, n)
-
-	def foo2():
-		return 0
-	result_of_computation = manage_pickle('test_manage_pickle2',
-										foo2)
-
-	###################################### CONVERT TO PLINK FORMAT
 	import pandas as pd
 	import setup
+
+	###################################### FIND INDIVIDUALS
+
+	# Dont forget ../ to get out of the src directory
+	lst = find_individuals(fam='../'+setup.PATH_HOST_CLEAN_DATA, 
+									clinical='../'+setup.PATH_CLINICAL_DATA, 
+									viral='../'+setup.PATH_VIRAL_DATA)
+	print(lst)
+
+	exit()
+	###################################### MANAGE PICKLE
+
+	n = 4
+	path = "test_manage_pickle"
+	def foo(x): return x**2;
+	result_of_computation = manage_pickle(path, foo, n)
+	def foo2(): return 0
+	result_of_computation = manage_pickle('test_manage_pickle2', foo2)
+
+	###################################### CONVERT TO PLINK FORMAT
 
 	# Create the dataframe
 	def test_convert_to_plink_phenotype():
@@ -204,5 +287,6 @@ if __name__ == '__main__' :
 	# Use the function
 	print(df)
 	print()
-	convert_to_plink_phenotype(path=path_test+'convert_to_plink_phenotype', out=path_test+'converted',
+	convert_to_plink_phenotype(path=path_test+'convert_to_plink_phenotype', 
+							   out=path_test+'converted',
 							   id_col_name='id', cols=['var2', 'var1'])

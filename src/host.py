@@ -51,22 +51,28 @@ def join_position(df):
 
 
 
-def plot_plink_pca(path, n_pcs=0, scaled=True, h=3, hue=None):
+def plot_plink_pca(path, n_pcs=0, scaled=True, h=3, hue_col=None,
+                   path_hue=None):
     """Plot PCA whose computation was done with plink.
     Input: - path to the plink .eigenval and .eigenvec files.
            - n_pcs determines the number of principal components to plot (must be multiple of 2).
                    by default, this value is 0 (i.e. only eigenvalues are plotted)
            - scaled: True makes the plot to have consistent ratio with explained variances by each PC
            - h: height of the plot(s). If scaled==True: width consistent with ratio, otherwise width=height
-           - hue: pandas.Series of a categorical variable to color the data points.
+           - hue_col: column name of a categorical pandas.Series to color the data points.
+           - path_hue: path to the pickled DataFrame binary file containing hue_col
     Output: None"""
     ext1, ext2 = '.eigenval', '.eigenvec'
 
     ######################## ERRORS
 
     if not os.path.exists(path+ext1) or not os.path.exists(path+ext2):
-        raise ValueError("ERROR plot_plink_pca: the path {} does not have any .eigenval or .eigenval files.".format(path))
-    
+        raise ValueError("plot_plink_pca: the path {} does not have any .eigenval or .eigenval files.".format(path))
+    if hue != None and path_hue == None:
+        raise ValueError("hue_col provided, but no path_hue specified to load a DataFrame")
+    if hue == None and path_hue != None:
+        raise ValueError("path_hue provided, but no hue_col specified to select a column of the DataFrame")
+
     ######################## EIGENVALUES
 
     # Load the eigenvalues
@@ -96,6 +102,13 @@ def plot_plink_pca(path, n_pcs=0, scaled=True, h=3, hue=None):
     txt_pcs = [ 'PC'+str(i) for i in np.arange(1, n_pcs+1) ]
     df_pca = pd.read_csv(path+ext2, sep='\s+', usecols= ['IID']+txt_pcs )
 
+    ###### LOADING HUE
+    if path_hue != None : 
+        # in this block, hue_col != None
+        with open(path_hue, 'rb') as file:
+            df = pickle.load(file)
+        df = df[hue_col]
+
     ###### PLOTTING
     def get_labels(i): # returns a 2-tuple
         return ("{} ({:.3}%)".format(txt_pcs[i],   vars_expl[i]*100), 
@@ -123,4 +136,3 @@ if __name__ == '__main__' :
     plot_plink_pca("../data/plink/host_geno_clean_pca", n_pcs=2)
     plt.show()
     print(help(plot_plink_pca))
-    
