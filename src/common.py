@@ -163,14 +163,15 @@ def convert_to_plink_phenotype(path, out, id_col_name, cols) :
 	print("Successfully written '{}'".format(out))
 
 
-def find_individuals(fam, clinical, viral, igm=True, verbose=True,
-					 df=True):
+def find_individuals(fam, clinical, viral, criteria=None, verbose=True,
+					 output_path=None):
 	"""Extract (from files) individual from each of the three datasets to create a union and an intersection list.
 	Input: - fam: path to the plink .fam file (extension '.fam' is optional)
 		   - clinical: path to the pickled DataFrame containing clinical data
 		   - viral: path to the pickled DataFrame containing viral data
-		   - igm: return the ids in the IGM format (True), or GS-US format
-		   - out: if False, returns a list of tuples (id_igm, id_gs), otherwise returns a DataFrame
+		   - criteria: None: takes all intersecting individuals. Otherwise Python tuple: ('column','value')
+		   			   This map describes how individuals in the clinical DataFrame will be taken into account.
+		   - output_path: if None, returns a DataFrame. Otherwise writes in the ouput path provided (textfile, 1 id per row)
 	Note: the id column names are automatically found, specified in the setup.py file
 	Output: list of tuples (id_igm, id_gs)"""
 
@@ -190,6 +191,11 @@ def find_individuals(fam, clinical, viral, igm=True, verbose=True,
 	####### BINARY CLINICAL DATAFRAME
 	with open(clinical, 'rb') as file :
 		df_clinical = pickle.load(file)
+	# FILTERING OF INDIVIDUALS DEPENDING ON 'criteria'
+	if criteria != None:
+		if len(criteria) != 2 : raise ValueError("The 'criteria' param must be a 2-tuple")
+		df_clinical = df_clinical[ df_clinical[criteria[0]] == criteria[1] ]
+	# Extract ids	
 	inds_clinical_IGM = df_clinical[setup.ID_IGM_CLINICAL_DF].values
 	inds_clinical_GS = df_clinical[setup.ID_GS_CLINICAL_DF].values
 	df_clinical = None
@@ -206,8 +212,6 @@ def find_individuals(fam, clinical, viral, igm=True, verbose=True,
 										  assume_unique=True, return_indices=True)
 	inter_clinical_geno  = np.intersect1d(inds_clinical_IGM, inds_fam, 
 										  assume_unique=True, return_indices=False)
-	union_clinical_viral = np.union1d(inds_clinical_GS, inds_viral)
-	union_clinical_geno  = np.union1d(inds_clinical_IGM, inds_fam)
 
 	##################### GLOBAL INTERSECTION AND UNION
 	# Have the intersection list clinical<->viral but with IGM ids
@@ -223,6 +227,8 @@ def find_individuals(fam, clinical, viral, igm=True, verbose=True,
 		inter_gs += inds_clinical_GS[ np.where(inds_clinical_IGM == igm)[0] ].tolist()
 
 	if verbose:
+		union_clinical_viral = np.union1d(inds_clinical_GS, inds_viral)
+		union_clinical_geno  = np.union1d(inds_clinical_IGM, inds_fam)
 		print("{} in clinical".format(len(inds_clinical_IGM)))
 		#print("{} in clinical [GS]".format(len(inds_clinical_GS)))
 		print("{} in viral".format(len(inds_viral)))
@@ -234,12 +240,15 @@ def find_individuals(fam, clinical, viral, igm=True, verbose=True,
 		print("Global intersection :", len(inter_igm))
 
 	N = len(inter_igm)
-	if df==False:
-		return [ (inter_igm[i], inter_gs[i]) for i in np.arange(N) ]
 	df = pd.DataFrame()
 	df.insert(column=setup.ID_IGM_CLINICAL_DF, loc=0, value=inter_igm)
 	df.insert(column=setup.ID_GS_CLINICAL_DF, loc=0, value=inter_gs)
-	return df
+	if output_path == None:
+		return df
+	# Otherwise write in a file that can be read by the --keep command of plink
+	with open(output_path, 'w') as file:
+		file.write(df[setup.ID_IGM_CLINICAL_DF].to_csv(header=False, index=False))
+		print("Written to", output_path, "({} individuals)".format(df.shape[0]))
 
 
 ############################################################

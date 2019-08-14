@@ -36,8 +36,14 @@ PATH_PLINK_DATA = PATH_DATA+"plink/"
 PATH_SNP_MAP = PATH_DATA+'SNP_dict'
 PATH_CLINICAL_PLINK_PHENOTYPE = PATH_PLINK_DATA+'pheno.txt'
 PATH_HOST_CLEAN_DATA = PATH_PLINK_DATA+"host_geno_clean"
+PATH_HOST_CLEAN_ASIAN = PATH_PLINK_DATA+"host_asian_no_6_x_y"
 
 PATH_PLINK_LOG = PATH_PLINK_DATA+'log/'
+
+### INDIVIDUALS
+PATH_INDIVIDUALS = PATH_DATA+'individuals/'
+PATH_INTERSECTING_INDIVIDUALS = PATH_INDIVIDUALS+'intersecting_ids'
+PATH_INDIVIDUALS_ASIAN = PATH_INDIVIDUALS+'asians'
 
 ############ SOURCES
 PATH_SRC = "src/"
@@ -49,7 +55,12 @@ PATH_TEST = PATH_DATA+'test/'
 
 ############ SPECIAL
 PATH_NULL = PATH_DATA+"null"
-PATH_INTERSECTING_INDIVIDUALS = PATH_DATA+'intersecting_ids'
+
+########################################
+######## CURRENT COMPUTATIONS ##########
+########################################
+
+PATH_WORKING_DATASET = PATH_HOST_CLEAN_ASIAN
 
 ########################################
 ########### DATA MANAGEMENT ############
