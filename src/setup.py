@@ -36,7 +36,7 @@ PATH_PLINK_DATA = PATH_DATA+"plink/"
 PATH_SNP_MAP = PATH_DATA+'SNP_dict'
 PATH_CLINICAL_PLINK_PHENOTYPE = PATH_PLINK_DATA+'pheno.txt'
 PATH_HOST_CLEAN_DATA = PATH_PLINK_DATA+"host_geno_clean"
-PATH_HOST_CLEAN_ASIAN = PATH_PLINK_DATA+"host_asian_no_6_x_y"
+PATH_HOST_CLEAN_ASIAN = PATH_PLINK_DATA+"host_asian_no_6_x_y_mt"
 
 PATH_PLINK_LOG = PATH_PLINK_DATA+'log/'
 
@@ -61,6 +61,7 @@ PATH_NULL = PATH_DATA+"null"
 ########################################
 
 PATH_WORKING_DATASET = PATH_HOST_CLEAN_ASIAN
+PATH_WORKING_PHENOTYPES = PATH_DATA+'working_pheno'
 
 ########################################
 ########### DATA MANAGEMENT ############

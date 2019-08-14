@@ -223,8 +223,8 @@ def write_phenotypes(fam, phenotype, criteria=None, verbose=True,
 	# Include the ids for plink (FID & IID)
 	df = pd.DataFrame()
 	inter = np.intersect1d(inter_igm, df_clinical[setup.ID_IGM_CLINICAL_DF])
-	df.insert(column='FID', loc=0, value=inter) # FID
-	df.insert(column='IID', loc=0, value=inter) # IID
+	df.insert(column='IID', loc=0, value=inter) # FID
+	df.insert(column='FID', loc=0, value=inter) # IID
 
 	# Joining with the phenotype (unless random)
 	N = df.shape[0]
