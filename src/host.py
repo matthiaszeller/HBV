@@ -66,7 +66,7 @@ def join_position(df):
 
 
 def plot_plink_pca(path, n_pcs=0, scaled=True, h=3, hue_col=None,
-                   path_hue=None):
+                   path_hue=None, bbox_to_anchor=None):
     """Plot PCA whose computation was done with plink.
     Input: - path to the plink .eigenval and .eigenvec files.
            - n_pcs determines the number of principal components to plot (must be multiple of 2).
@@ -97,6 +97,7 @@ def plot_plink_pca(path, n_pcs=0, scaled=True, h=3, hue_col=None,
     for v in content[0:-1]: # the last item is empty (the file ends with '\n')
         vals.append(float(v))
     # Make the plot of eigenvalues
+    plt.figure(figsize=(4,2))
     sns.barplot(x=np.arange(1, len(vals)+1), y = vals)
     plt.xlabel('Principal components'); plt.ylabel('Eigenvalue')
     # Compute ratios of explained variance
@@ -119,14 +120,14 @@ def plot_plink_pca(path, n_pcs=0, scaled=True, h=3, hue_col=None,
     ###### LOADING HUE
     hue = None
     if hue_col != None:
-        # Load dataframe
+        # Load pickled dataframe
         with open(setup.PATH_CLINICAL_DATA, 'rb') as file:
             df_clinical = pickle.load(file)
         df_clinical = df_clinical[[setup.ID_IGM_CLINICAL_DF, hue_col]]
         df_clinical.set_index(setup.ID_IGM_CLINICAL_DF, inplace=True)
         df_pca.set_index('IID', inplace=True)
-        print(df_pca.join(other=df_clinical))
-        df_pca = df_pca.join(other=df_clinical, lsuffix='test',rsuffix='s')
+        # Join the tables with the IDs
+        df_pca = df_pca.join(other=df_clinical)
         hue = df_pca[hue_col]
 
     ###### PLOTTING
@@ -139,11 +140,18 @@ def plot_plink_pca(path, n_pcs=0, scaled=True, h=3, hue_col=None,
         # Compute width of subplot
         width = vars_expl[i]/vars_expl[i+1] * h if scaled else h
         fig, ax = plt.subplots(1,1, figsize=(width, h))
+        # Figure out if we must plot the legend for this subplot
+        lg = False if i_p < N_plots-1 else 'brief'
         # Scatter plot
-        sns.scatterplot(x=df_pca[txt_pcs[i]], y=df_pca[txt_pcs[i+1]], hue=hue)
+        sns.scatterplot(x=df_pca[txt_pcs[i]], y=df_pca[txt_pcs[i+1]], hue=hue, legend=lg)
         # Axe labels
         xlabel, ylabel = get_labels(i)
         ax.set_xlabel(xlabel); ax.set_ylabel(ylabel);
+
+    # Reset position of the legend
+    if bbox_to_anchor is not None and hue is not None:
+        plt.gca().legend(bbox_to_anchor=bbox_to_anchor, 
+            loc=2, borderaxespad=0.);
 
 
 ########################################
