@@ -168,7 +168,7 @@ def write_phenotypes(fam, phenotype, criteria=None, verbose=True,
 	"""Write plink-readable files for --assoc, --linear, --keep, --keep-fam options.
 	Either choose a phenotype form the clinical data, or output random columns (std normal)
 	Inputs: - fam: path to the plink fam file (.fam extension can be omitted)
-			- phenotype: column name of the clinical DataFrame, or 'random'
+			- phenotype: column name of the clinical DataFrame, or 'random', or 3-tuple (gene, pos, var)
 			- criteria: 2-tuple (criteria, value). Ex to keep only asians: criteria=('RACE', 'ASIAN')
 			- output_path: file path to write the file in.
 	Output: None"""
@@ -189,13 +189,11 @@ def write_phenotypes(fam, phenotype, criteria=None, verbose=True,
 	# Extract ids	
 	inds_clinical_IGM = df_clinical[setup.ID_IGM_CLINICAL_DF].values
 	inds_clinical_GS = df_clinical[setup.ID_GS_CLINICAL_DF].values
-	# We still need the clinical dataframe
 
 	####### BINARY VIRAL DATAFRAME
 	with open(setup.PATH_VIRAL_DATA, 'rb') as file :
 		df_viral = pickle.load(file)
 	inds_viral = df_viral[setup.ID_GS_VIRAL_DF].values
-	df_viral = None
 
 	##################### PAIRWISE INTERSECTION
 	# Only clinical data has the two IDs
@@ -219,17 +217,29 @@ def write_phenotypes(fam, phenotype, criteria=None, verbose=True,
 
 	# Include the ids for plink (FID & IID)
 	df = pd.DataFrame()
+	# Take into account individuals that were filtered out by criteria
 	inter = np.intersect1d(inter_igm, df_clinical[setup.ID_IGM_CLINICAL_DF])
 	df.insert(column='IID', loc=0, value=inter) # FID
 	df.insert(column='FID', loc=0, value=inter) # IID
 
-	# Joining with the phenotype (unless random)
+	# Joining with the phenotype
 	N = df.shape[0]
 	if phenotype == 'random':
 		k = 10
 		while k > 0:
 			df.insert(loc=2, column=k, value=np.random.randn(1, N).ravel())
 			k-= 1
+	elif type(phenotype) == tuple :
+		df_viral = df_viral[[(setup.ID_GS_VIRAL_DF, '', ''), phenotype]]
+		# Change the MultiIndex to standard index to avoid a warning (joining tables with different index structures)
+		df_viral.rename(columns={phenotype:phenotype[0]+'_'+str(phenotype[1])+'_'+phenotype[2]}, inplace=True)
+		df_viral.columns = [setup.ID_GS_VIRAL_DF, phenotype[0]+'_'+str(phenotype[1])+'_'+phenotype[2]]
+		# Convert the ids to prepare for joining
+		map_GS_to_IGM = dict(zip(inds_clinical_GS, inds_clinical_IGM))
+		df_viral[setup.ID_GS_VIRAL_DF] = df_viral[setup.ID_GS_VIRAL_DF].map(map_GS_to_IGM)
+		df_viral.set_index(setup.ID_GS_VIRAL_DF, inplace=True)
+		df = df.join(other=df_viral, on='IID')
+		# Convert the tuple to string, otherwise plink outputs an error while reading the file
 	else:
 		df_clinical.set_index(setup.ID_IGM_CLINICAL_DF, inplace=True)
 		df = df.join(other=df_clinical[[phenotype]], on='IID')
@@ -237,6 +247,7 @@ def write_phenotypes(fam, phenotype, criteria=None, verbose=True,
 	with open(output_path, 'w') as file:
 		file.write(df.to_csv(index=False, sep='\t'))
 
+	if not verbose: return
 	print("{} individuals written to '{}'\n{} were filtered out based on the criteria {}\n\
 The phenotype '{}' was included.".format(N, output_path, len(inter_igm)-N,
 			criteria, phenotype))
