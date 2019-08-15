@@ -90,7 +90,7 @@ def plot_pca(pcs, pc_plot_height, n_plots=1,
 			#				y=pcs.components_[2*k+1])
 			sns.scatterplot(x=pcs.components_[2*k],
 							y=pcs.components_[2*k+1], 
-							ax=axs[k], hue=hue)
+							ax=axs[k], hue=hue, legend=None)
 			xlabel, ylabel = get_labels(k, 
 					   x_ratio=pcs.explained_variance_ratio_[2*k], 
 					   y_ratio=pcs.explained_variance_ratio_[2*k+1])
@@ -164,17 +164,14 @@ def convert_to_plink_phenotype(path, out, id_col_name, cols) :
 
 
 def write_phenotypes(fam, phenotype, criteria=None, verbose=True,
-					 output_path=None,):
-	"""Aims to find the intersection of individuals in all datasets, filter them (criteria), add relevant phenotypes, write to a file.
-	The file can then be provided to plink with the --pheno option. The clinical and viral data paths are the default ones in setup.py."""
-	"""Extract (from files) individual from each of the three datasets to create a union and an intersection list.
-	Input: - fam: path to the plink .fam file (extension '.fam' is optional)
-		   - criteria: None: takes all intersecting individuals. Otherwise Python tuple: ('column','value')
-		   			   This map describes how individuals in the clinical DataFrame will be taken into account.
-		   - output_path: if None, returns a DataFrame. Otherwise writes in the ouput path provided (textfile, 1 id per row)
-		   - phenotype: column name of the clinical DataFrame, except 'random' writes 10 random columns
-	Note: the id column names are automatically found, specified in the setup.py file
-	Output: """
+					 output_path=None):
+	"""Write plink-readable files for --assoc, --linear, --keep, --keep-fam options.
+	Either choose a phenotype form the clinical data, or output random columns (std normal)
+	Inputs: - fam: path to the plink fam file (.fam extension can be omitted)
+			- phenotype: column name of the clinical DataFrame, or 'random'
+			- criteria: 2-tuple (criteria, value). Ex to keep only asians: criteria=('RACE', 'ASIAN')
+			- output_path: file path to write the file in.
+	Output: None"""
 
 	##################### PARAMETERS 
 

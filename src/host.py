@@ -60,9 +60,18 @@ def run_plink(command, file, out, extension, plink2=True, verbose=True, force=Fa
     return stdout, stderr
 
 
-def join_position(df):
-    pass
-
+def run_assoc(phenotypes=setup.PATH_WORKING_PHENOTYPES, exclude_chrs=setup.DEFAULT_CHROMOSOME_EXCLUSION,
+              file=setup.PATH_HOST_CLEAN_DATA, out=setup.PATH_HOST_CLEAN_DATA):
+    """Call run_plink function together with --keep, --not-chr, --linear.
+    Note that all computations are done here
+    Inputs: all the same as run_plink, except phenotypes.
+            phenotypes: path to the file that contains plink phenotypes (also provided to --keep).
+    Output: (stdout, stderr)"""
+    t = exclude_chrs
+    t += " --keep " + phenotypes
+    t += " --linear"
+    t += " --pheno " + phenotypes
+    return run_plink(file=file, out=out, extension=' ', command=t)
 
 
 def plot_plink_pca(path, n_pcs=0, scaled=True, h=3, hue_col=None,
