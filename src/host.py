@@ -89,7 +89,7 @@ def plot_plink_pca(path, n_pcs=0, scaled=True, h=3, hue_col=None,
                    by default, this value is 0 (i.e. only eigenvalues are plotted)
            - scaled: True makes the plot to have consistent ratio with explained variances by each PC
            - h: height of the plot(s). If scaled==True: width consistent with ratio, otherwise width=height
-           - hue_col: column name of a categorical pandas.Series from the clinical dataframe.
+           - hue_col: column name of a categorical pandas.Series from the clinical dataframe, or a Series (MUST BE IN THE RIGHT ORDER)
            - path_hue: path to the pickled DataFrame binary file containing hue_col
     Output: None"""
     ext1, ext2 = '.eigenval', '.eigenvec'
@@ -135,7 +135,9 @@ def plot_plink_pca(path, n_pcs=0, scaled=True, h=3, hue_col=None,
 
     ###### LOADING HUE
     hue = None
-    if hue_col != None:
+    if type(hue_col) == list or type(hue_col) == np.ndarray :
+        hue = hue_col
+    elif hue_col != None:
         # Load pickled dataframe
         with open(setup.PATH_CLINICAL_DATA, 'rb') as file:
             df_clinical = pickle.load(file)

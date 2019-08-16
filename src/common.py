@@ -14,6 +14,7 @@ import pandas as pd
 
 if __name__ != '__main__' :
 	from src import setup
+	from src import stats
 
 ####### FUNCTIONS
 
@@ -164,13 +165,17 @@ def convert_to_plink_phenotype(path, out, id_col_name, cols) :
 
 
 def write_phenotypes(fam, phenotype, criteria=None, verbose=True,
-					 output_path=None):
+					 output_path=None, covariates=False, transform=None):
 	"""Write plink-readable files for --assoc, --linear, --keep, --keep-fam options.
-	Either choose a phenotype form the clinical data, or output random columns (std normal)
+	Either choose a phenotype form the clinical data, or output random columns (std normal).
+	You can also write covariates by setting covariates=True and provide the appropriate phenotype parameter.
 	Inputs: - fam: path to the plink fam file (.fam extension can be omitted)
-			- phenotype: column name of the clinical DataFrame, or 'random', or 3-tuple (gene, pos, var)
+			- phenotype: column name of the clinical DataFrame, or 'random', or 3-tuple (gene, pos, var). See covariates
 			- criteria: 2-tuple (criteria, value). Ex to keep only asians: criteria=('RACE', 'ASIAN')
 			- output_path: file path to write the file in.
+			- covariates: if True, the phenotype param is a list of covariates in the clinical DataFrame.
+						  this is used to provide plink a file to the --covar command.
+			- transform: transform the variable to write, 'invnorm' or 'center-scale'
 	Output: None"""
 
 	##################### PARAMETERS 
@@ -222,9 +227,22 @@ def write_phenotypes(fam, phenotype, criteria=None, verbose=True,
 	df.insert(column='IID', loc=0, value=inter) # FID
 	df.insert(column='FID', loc=0, value=inter) # IID
 
+	def center_scale(series):
+		return (series - series.mean()) / series.std()
+
 	# Joining with the phenotype
 	N = df.shape[0]
-	if phenotype == 'random':
+	if covariates == True:
+		### TEMPORARY - TODO : remove and implement somewhere else
+		
+		# Here, we don't want to write a phenotype but covariates
+		# phenotype is here a list of the columns names of the clinical DataFrame
+		df_clinical.set_index(setup.ID_IGM_CLINICAL_DF, inplace=True)
+		df = df.join(other=df_clinical[phenotype], on='IID')
+		if transform == 'center-scale':
+			df[phenotype] = center_scale(df[phenotype])
+
+	elif phenotype == 'random':
 		k = 10
 		while k > 0:
 			df.insert(loc=2, column=k, value=np.random.randn(1, N).ravel())
@@ -243,15 +261,23 @@ def write_phenotypes(fam, phenotype, criteria=None, verbose=True,
 	else:
 		df_clinical.set_index(setup.ID_IGM_CLINICAL_DF, inplace=True)
 		df = df.join(other=df_clinical[[phenotype]], on='IID')
+		# Transformation
+		if transform == 'invnorm': 
+			df[phenotype] = stats.rank_INT(df[phenotype])
+		elif transform != None: 
+			raise ValueError("transform parameter cannot be interpreted")
+
+	if not verbose: return
+	name = 'phenotype' if covariates == False else 'covariates'
+	print("{} individuals written to '{}'\n{} were filtered out based on the criteria {}\n\
+The {} '{}' was included.".format(N, output_path, len(inter_igm)-N,
+			criteria, name, phenotype))
+	#print(df)
+	if output_path == None: return df
 
 	with open(output_path, 'w') as file:
 		file.write(df.to_csv(index=False, sep='\t'))
 
-	if not verbose: return
-	print("{} individuals written to '{}'\n{} were filtered out based on the criteria {}\n\
-The phenotype '{}' was included.".format(N, output_path, len(inter_igm)-N,
-			criteria, phenotype))
-	#print(df)
 
 
 ############################################################
