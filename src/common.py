@@ -233,14 +233,14 @@ def write_phenotypes(fam, phenotype, criteria=None, verbose=True,
 	# Joining with the phenotype
 	N = df.shape[0]
 	if covariates == True:
+		# Re-load the clinical transformed dataframe
 		### TEMPORARY - TODO : remove and implement somewhere else
-		
+		with open(setup.PATH_CLINICAL_DATA_TRANSFORMED, 'rb') as file:
+			df_clinical = pickle.load(file)
 		# Here, we don't want to write a phenotype but covariates
 		# phenotype is here a list of the columns names of the clinical DataFrame
 		df_clinical.set_index(setup.ID_IGM_CLINICAL_DF, inplace=True)
 		df = df.join(other=df_clinical[phenotype], on='IID')
-		if transform == 'center-scale':
-			df[phenotype] = center_scale(df[phenotype])
 
 	elif phenotype == 'random':
 		k = 10
@@ -277,6 +277,19 @@ The {} '{}' was included.".format(N, output_path, len(inter_igm)-N,
 
 	with open(output_path, 'w') as file:
 		file.write(df.to_csv(index=False, sep='\t'))
+
+def write_covariates(fam, criteria, output_path, host_pcs, virus_pcs) :
+	df = write_phenotypes(fam=fam, criteria=criteria, output_path=None, 
+		covariates=True, phenotype=setup.CLINICAL_COVARIATES)
+
+	### LOADING host PCS
+	df_host_pca = pd.read_csv(host_pcs, sep='\s+')
+	df_host_pca.drop('IID', axis=1, inplace=True)
+	df_host_pca.set_index("#FID", inplace=True)
+
+	### Join the Pcs with the covariates dataframe
+	df = df.join(other=df_host_pca, on='IID')
+	#print(df)
 
 
 
