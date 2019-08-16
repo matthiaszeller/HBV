@@ -61,17 +61,24 @@ def run_plink(command, file, out, extension, plink2=True, verbose=True, force=Fa
 
 
 def run_assoc(phenotypes=setup.PATH_WORKING_PHENOTYPES, exclude_chrs=setup.DEFAULT_CHROMOSOME_EXCLUSION,
-              file=setup.PATH_HOST_CLEAN_DATA, out=setup.PATH_HOST_CLEAN_DATA):
+              file=setup.PATH_HOST_CLEAN_DATA, out=setup.PATH_HOST_CLEAN_DATA, binary=False, plink2=True):
     """Call run_plink function together with --keep, --not-chr, --linear.
     Note that all computations are done here
     Inputs: all the same as run_plink, except phenotypes.
             phenotypes: path to the file that contains plink phenotypes (also provided to --keep).
+            binary: If the phenotype is a binary var, must specify to plink that they are the phenotype, and not
+                    a case-control specification with --make-pheno <file> *.
     Output: (stdout, stderr)"""
     t = exclude_chrs
-    t += " --keep " + phenotypes
-    t += " --linear"
+    if binary:
+        #t += " --make-pheno " + phenotypes + " '*'"
+        t += " --allow-no-sex"
+        t += " --logistic --1"
+    else:
+        t += " --linear"
     t += " --pheno " + phenotypes
-    return run_plink(file=file, out=out, extension=' ', command=t)
+    t += " --keep " + phenotypes
+    return run_plink(file=file, out=out, extension=' ', command=t, plink2=plink2)
 
 
 def plot_plink_pca(path, n_pcs=0, scaled=True, h=3, hue_col=None,
