@@ -65,9 +65,11 @@ def pca_impute(df, n_components, impute_strategy):
 
 	# PCA
 	pca = PCA(n_components = n_components)
+
+
 	pcs = pca.fit(df_pca.transpose())
 
-	return pcs
+	return (pcs, pca.transform(df_pca.transpose()))
 
 
 ###################################

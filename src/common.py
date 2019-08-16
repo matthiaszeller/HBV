@@ -53,7 +53,7 @@ def manage_pickle(path, fun, args=None, verbose=True) :
 
 
 
-def plot_pca(pcs, pc_plot_height, n_plots=1, 
+def plot_pca(pcs, data, pc_plot_height, n_plots=1, 
 			 plt_ratio=True, figsize=(10,3), 
 			 hue=None, scaled_only=False, bbox_to_anchor=None,
 			 singular_values=True):
@@ -77,6 +77,8 @@ def plot_pca(pcs, pc_plot_height, n_plots=1,
 					y=pcs.singular_values_);
 		plt.xlabel('principal components')
 		plt.ylabel('singular values');
+
+	df_pca = pd.DataFrame(data)
 
 	if scaled_only == False:
 		# NOT ON SCALEs
@@ -118,7 +120,7 @@ def plot_pca(pcs, pc_plot_height, n_plots=1,
 		#ax.scatter(x=pcs.components_[2*k], y=pcs.components_[2*k+1]);
 		# Put a legend only if it's the last plot
 		lg = False if k<n_plots-1 else 'brief'
-		sns.scatterplot(x=pcs.components_[2*k], y=pcs.components_[2*k+1],
+		sns.scatterplot(x=df_pca[2*k], y=df_pca[2*k+1],
 						ax=ax, hue=hue, legend=lg)
 		xlabel, ylabel = get_labels(k, 
 				   x_ratio=pcs.explained_variance_ratio_[2*k], 
