@@ -1,5 +1,9 @@
 # HBV GWS project
 
+## About
+
+This repository is the result of a three-week long internship in *Fellay Lab, EPFL* under the supervision of Sina Rüeger. This project aims to perform a genome-wide association study (GWAS) of HBV-infected individuals from different populations, i.e. find associations between host single nucleotide polymorphisms (SNPs) and viral amino acid variants. The project eventually focuses on a genetically-related asian subpopulation.
+
 ## Requirements
 
 * plink version 1.9
@@ -28,7 +32,7 @@ The order matters: some notebooks store processed data,
 
 ### Documentation & tutorials
 
-* tutorial/Statistics notebook: put altogether all relevant information about statistical theoretical background
+* tutorial/Statistics notebook: put altogether relevant information about statistical theoretical background
 * tutorial/Plink introduction notebook: basic procedures and commands of plink. Mainly follows the official tutorial.
 * tutorial/Plink and Python notebook: how to import plink files into python.
 * tutorial/Scitas tutorial
