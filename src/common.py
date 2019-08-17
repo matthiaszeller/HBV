@@ -52,6 +52,20 @@ def manage_pickle(path, fun, args=None, verbose=True) :
 		return result
 
 
+def plot_missing(path_report):
+	"""Plot a plink missing report. The input path must target .vmiss and .smiss files."""
+	dtype = {'F_MISS':float, 'ID':str, '#CHROM':str}
+	df_ind = pd.read_csv(path_report+'.smiss', sep='\s+', 
+                          usecols=['F_MISS'], dtype=dtype)
+	df_var = pd.read_csv(path_report+'.vmiss', sep='\s+', 
+                          usecols=['#CHROM', 'ID', 'F_MISS'], dtype=dtype)
+	fig, ax = plt.subplots(1, 2, figsize=(15, 3))
+	sns.distplot(df_ind['F_MISS'], norm_hist=False, kde=False, ax=ax[0])
+	ax[0].set_ylabel('number of individuals'); ax[0].set_xlabel('rate of missing variants');
+	sns.distplot(df_var.F_MISS.dropna(), kde=False, norm_hist=False, ax=ax[1])
+	ax[1].set_xlabel('rate of missing individuals'); ax[1].set_ylabel('number of variants');
+
+
 
 def plot_pca(pcs, data, pc_plot_height, n_plots=1, 
 			 plt_ratio=True, figsize=(10,3), 
