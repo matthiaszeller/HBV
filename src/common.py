@@ -275,11 +275,10 @@ def write_phenotypes(fam, phenotype=None, criteria=None, verbose=True,
 	# If phenotype == None, we simply do nothing
 	# This case occurs when we want to write the IDs only
 
-	if not verbose: return
-	name = 'phenotype' if covariates == False else 'covariates'
-	print("{} individuals written to '{}'\n{} were filtered out based on the criteria {}\n\
-The {} '{}' was included.".format(N, output_path, len(inter_igm)-N,
-			criteria, name, phenotype))
+	if verbose:
+		name = 'phenotype' if covariates == False else 'covariates'
+		print("{} individuals written to '{}'\n{} were filtered out based on the criteria {}\nThe {} '{}' was included.".format(N, output_path, len(inter_igm)-N,
+				criteria, name, phenotype))
 	#print(df)
 	if output_path == None: return df
 
