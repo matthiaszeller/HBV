@@ -166,23 +166,27 @@ def convert_to_plink_phenotype(path, out, id_col_name, cols) :
 	print("Successfully written '{}'".format(out))
 
 
-def write_phenotypes(fam, phenotype, criteria=None, verbose=True,
+def write_phenotypes(fam, phenotype=None, criteria=None, verbose=True,
 					 output_path=None, covariates=False, transform=None):
 	"""Write plink-readable files for --assoc, --linear, --keep, --keep-fam options.
 	Either choose a phenotype form the clinical data, or output random columns (std normal).
-	You can also write covariates by setting covariates=True and provide the appropriate phenotype parameter.
+	You can use this function to write only the individuals identifiers.
+	This function is also called by write_covariates by setting covariates=True (don't do this yourself).
 	Inputs: - fam: path to the plink fam file (.fam extension can be omitted)
 			- phenotype: column name of the clinical DataFrame, or 'random', or 3-tuple (gene, pos, var). See covariates
+						 if None, only the identifiers are written (useful if we only use --keep)
 			- criteria: 2-tuple (criteria, value). Ex to keep only asians: criteria=('RACE', 'ASIAN')
 			- output_path: file path to write the file in.
 			- covariates: if True, the phenotype param is a list of covariates in the clinical DataFrame.
 						  this is used to provide plink a file to the --covar command.
 			- transform: transform the variable to write, 'invnorm' or 'center-scale'
-	Output: None"""
+	Output: DataFrame if ouput_path==None, otherwise returns None."""
 
 	##################### PARAMETERS 
 
 	if fam[-4:] != '.fam': fam += '.fam'
+	if phenotype == None and covariates != False:
+		raise ValueError("covariates parameter can't be True if no phenotype is provided")
 
 	##################### READ FILES AND EXTRACT
 	# Note: here we simply extract python lists (no dataframes or series)
@@ -215,19 +219,18 @@ def write_phenotypes(fam, phenotype, criteria=None, verbose=True,
 	inter_clinical_viral_igm = inds_clinical_IGM[comm1]
 	inter_igm = np.intersect1d(inter_clinical_viral_igm, inter_clinical_geno, assume_unique=True)
 
-	##################### BUILD PHENOTYPE DATAFRAME (that will be written)
-
-	# FILTERING OF INDIVIDUALS DEPENDING ON 'criteria'
+	##################### FILTERING OF INDIVIDUALS DEPENDING ON 'criteria'
 	if criteria != None:
 		if len(criteria) != 2 : raise ValueError("The 'criteria' param must be a 2-tuple")
 		df_clinical = df_clinical[ df_clinical[criteria[0]] == criteria[1] ]
 
-	# Include the ids for plink (FID & IID)
+	##################### BUILD PHENOTYPE DATAFRAME (that will be written)
 	df = pd.DataFrame()
-	# Take into account individuals that were filtered out by criteria
+	# Take into account the fact that individuals were filtered out by criteria
 	inter = np.intersect1d(inter_igm, df_clinical[setup.ID_IGM_CLINICAL_DF])
-	df.insert(column='IID', loc=0, value=inter) # FID
-	df.insert(column='FID', loc=0, value=inter) # IID
+	# Add the identifiers
+	df.insert(column='IID', loc=0, value=inter) # IID
+	df.insert(column='FID', loc=0, value=inter) # FID
 
 	def center_scale(series):
 		return (series - series.mean()) / series.std()
@@ -260,7 +263,7 @@ def write_phenotypes(fam, phenotype, criteria=None, verbose=True,
 		df_viral.set_index(setup.ID_GS_VIRAL_DF, inplace=True)
 		df = df.join(other=df_viral, on='IID')
 		# Convert the tuple to string, otherwise plink outputs an error while reading the file
-	else:
+	elif phenotype != None:
 		df_clinical.set_index(setup.ID_IGM_CLINICAL_DF, inplace=True)
 		df = df.join(other=df_clinical[[phenotype]], on='IID')
 		# Transformation
@@ -268,6 +271,9 @@ def write_phenotypes(fam, phenotype, criteria=None, verbose=True,
 			df[phenotype] = stats.rank_INT(df[phenotype])
 		elif transform != None: 
 			raise ValueError("transform parameter cannot be interpreted")
+
+	# If phenotype == None, we simply do nothing
+	# This case occurs when we want to write the IDs only
 
 	if not verbose: return
 	name = 'phenotype' if covariates == False else 'covariates'
@@ -279,6 +285,7 @@ The {} '{}' was included.".format(N, output_path, len(inter_igm)-N,
 
 	with open(output_path, 'w') as file:
 		file.write(df.to_csv(index=False, sep='\t'))
+
 
 def write_covariates(fam, criteria, output_path, host_pcs, virus_pcs) :
 	df = write_phenotypes(fam=fam, criteria=criteria, output_path=None, 

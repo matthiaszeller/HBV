@@ -10,6 +10,7 @@ if __name__ != '__main__':
     from src import setup
 
 def run_shell_command(cmd_lst, verbose=False) :
+
     """Returns a tuple: (stdout, stderr).
     Note: you must separate the options from their values.
     Note: the output is returned when all calculations are done
@@ -61,9 +62,9 @@ def run_plink(command, file, out, extension, plink2=True, verbose=True, force=Fa
 
 
 def run_assoc(phenotypes=setup.PATH_WORKING_PHENOTYPES, exclude_chrs=setup.DEFAULT_CHROMOSOME_EXCLUSION,
-              file=setup.PATH_HOST_CLEAN_DATA, out=setup.PATH_HOST_CLEAN_DATA, binary=False, plink2=True):
+              file=setup.PATH_HOST_CLEAN_DATA, out=setup.PATH_HOST_CLEAN_DATA, 
+              binary=False, plink2=True):
     """Call run_plink function together with --keep, --not-chr, --linear.
-    Note that all computations are done here
     Inputs: all the same as run_plink, except phenotypes.
             phenotypes: path to the file that contains plink phenotypes (also provided to --keep).
             binary: If the phenotype is a binary var, must specify to plink that they are the phenotype, and not
@@ -78,7 +79,9 @@ def run_assoc(phenotypes=setup.PATH_WORKING_PHENOTYPES, exclude_chrs=setup.DEFAU
         t += " --linear"
     t += " --pheno " + phenotypes
     t += " --keep " + phenotypes
-    return run_plink(file=file, out=out, extension=' ', command=t, plink2=plink2)
+
+    return run_plink(file=file, out=out, extension=' ', command=t, plink2=plink2,
+                     log_name = "assoc")
 
 
 def plot_plink_pca(path, n_pcs=0, scaled=True, h=3, hue_col=None,
