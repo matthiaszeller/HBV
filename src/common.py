@@ -291,7 +291,7 @@ def write_phenotypes(fam, phenotype=None, criteria=None, verbose=True,
 
 	if verbose:
 		name = 'phenotype' if covariates == False else 'covariates'
-		print("{} individuals written to '{}'\n{} were filtered out based on the criteria {}\nThe {} '{}' was included.".format(N, output_path, len(inter_igm)-N,
+		print("{} individuals written to '{}'\n{} were filtered out based on the criteria {}\nThe {} '{}' were included from clinical data.".format(N, output_path, len(inter_igm)-N,
 				criteria, name, phenotype))
 	#print(df)
 	if output_path == None: return df
@@ -301,18 +301,63 @@ def write_phenotypes(fam, phenotype=None, criteria=None, verbose=True,
 
 
 def write_covariates(fam, output_path, host_pcs, virus_pcs, criteria=None) :
-	df = write_phenotypes(fam=fam, criteria=criteria, output_path=None, 
-		covariates=True, phenotype=setup.CLINICAL_COVARIATES)
+	"""Uses write_phenotypes to get the clinical data as covariates and then merges data with principal components.
+	Input:  - host_pcs: path to a plink .eigenvec file (include extension)
+			- virus_pcs: DataFrame containing viral PCs, with IGM ids (see GWAS asian individuals notebook)
+	"""
 
-	### LOADING host PCS
+	# Call write_phenotypes function
+	df = write_phenotypes(fam=fam, criteria=criteria, output_path=None, 
+		covariates=True, phenotype=setup.CLINICAL_COVARIATES, verbose=True)
+
+	### LOADING host PCs
 	df_host_pca = pd.read_csv(host_pcs, sep='\s+')
 	df_host_pca.drop('IID', axis=1, inplace=True)
 	df_host_pca.set_index("#FID", inplace=True)
+	# df_host_pca contains now only the PCs as columns
+	# We rename those columns to show they come from the host data
+	df_host_pca.columns = [ 'H'+col for col in df_host_pca.columns ]
 
 	### Join the Pcs with the covariates dataframe
 	df = df.join(other=df_host_pca, on='IID')
+	df = df.join(other=virus_pcs, on='IID')
 	
-	print(df)
+	#print(df)
+	print("{} host PCs and {} viral PCs were included as covariates"
+		.format(len(df_host_pca.columns), virus_pcs.shape[1]))
+	# We take df.shape[1]-2 to count covariates because of IID, FID
+	print("A total of {} covariates were written in {}"
+		.format(df.shape[1]-2, output_path))
+
+	with open(output_path, 'w') as file :
+		file.write(df.to_csv(sep='\t', index=False))
+
+def map_ids(id_list):
+	"""Provide a list of ids (IGM/GS) and get mapped ids (GS/IGM).
+	Automatically reads in the clinical dataframe"""
+	# Load the clinical dataframe
+	with open(setup.PATH_CLINICAL_DATA, 'rb') as file:
+		df = pickle.load(file)[[setup.ID_IGM_CLINICAL_DF, setup.ID_GS_CLINICAL_DF]]
+	# Detect the id format that was provided
+	if id_list[0][0:3] == 'igm':
+		label = setup.ID_IGM_CLINICAL_DF
+		target = setup.ID_GS_CLINICAL_DF
+	elif id_list[0][0:2] == 'GS':
+		label = setup.ID_GS_CLINICAL_DF
+		target = setup.ID_IGM_CLINICAL_DF
+	else: raise ValueError("The list does not contain valid identifiers")
+
+	id_map = dict(zip(df[label], df[target]))
+	mapped = []
+	for i in id_list :
+		if i in id_map : mapped.append(id_map[i])
+		else: mapped.append(np.nan)
+	return mapped
+	# id_map = dict()
+
+	# for i in id_list :
+	# 	# see if this is in the DataFrame
+	# 	index = df[label].find(i)
 
 
 

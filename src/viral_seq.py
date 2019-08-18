@@ -45,10 +45,10 @@ def index_by_pos(df, gene, pos):
 
 
 def pca_impute(df, n_components, impute_strategy):
-	"""Returns a sklearn PCA object. 
+	"""
 	impute_strategy: mean or most frequent implies a SimpleImputer.
 					 iterative implies an iterative imputer
-	Note: for the iterative imputation"""
+	Note: The iterative imputation does not work (computations never stop or take a very long time)"""
 	# Impute missing values
 	df_pca = df.transpose()
 
