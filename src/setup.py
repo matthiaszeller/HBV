@@ -44,6 +44,7 @@ PATH_PLINK_LOG = PATH_PLINK_DATA+'log/'
 ### GWAS DATA
 PATH_ASIANS_GWAS = PATH_PLINK_DATA+"asians_gwas"
 PATH_ASIANS_GWAS_COVARIATES = PATH_DATA + "covariates_asians_gwas.txt"
+PATH_ASIANS_GWAS_PHENOTYPES = PATH_DATA + "phenotypes_asians_gwas.txt"
 
 ### INDIVIDUALS
 PATH_INTERSECTING_INDIVIDUALS = PATH_DATA+'all_intersecting_ids'

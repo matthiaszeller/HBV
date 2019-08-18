@@ -187,8 +187,9 @@ def write_phenotypes(fam, phenotype=None, criteria=None, verbose=True,
 	You can use this function to write only the individuals identifiers.
 	This function is also called by write_covariates by setting covariates=True (don't do this yourself).
 	Inputs: - fam: path to the plink fam file (.fam extension can be omitted)
-			- phenotype: column name of the clinical DataFrame, or 'random', or 3-tuple (gene, pos, var). See covariates
+			- phenotype: column name of the clinical DataFrame, or 'random'/'all', or 3-tuple (gene, pos, var). See covariates
 						 if None, only the identifiers are written (useful if we only use --keep)
+						 if 'all', all the viral amino acids are written
 			- criteria: 2-tuple (criteria, value). Ex to keep only asians: criteria=('RACE', 'ASIAN')
 			- output_path: file path to write the file in.
 			- covariates: if True, the phenotype param is a list of covariates in the clinical DataFrame.
@@ -266,7 +267,21 @@ def write_phenotypes(fam, phenotype=None, criteria=None, verbose=True,
 		while k > 0:
 			df.insert(loc=2, column=k, value=np.random.randn(1, N).ravel())
 			k-= 1
+	# Write all amino acids
+	elif phenotype == 'all':
+		# Rename columns (prepare for joining)
+		new_cols = [ i[0]+'_'+str(i[1])+'_'+i[2] for i in df_viral.columns ]
+		new_cols[0] = 'id' # special case of the MultiIndex
+		df_viral.columns = new_cols
+		# Map the ids to IGM format
+		df_viral.id = map_ids(df_viral.id)
+		df_viral.set_index('id', inplace=True)
+		# Join with DataFrame that will be written
+		df = df.join(other=df_viral, on='IID')
+	# Write a single amino acid
 	elif type(phenotype) == tuple :
+		# TODO: this has been implemented before phenotype='all' was written
+		# 		this code can be simplified and cleaned as above
 		df_viral = df_viral[[(setup.ID_GS_VIRAL_DF, '', ''), phenotype]]
 		# Change the MultiIndex to standard index to avoid a warning (joining tables with different index structures)
 		df_viral.rename(columns={phenotype:phenotype[0]+'_'+str(phenotype[1])+'_'+phenotype[2]}, inplace=True)
@@ -291,8 +306,9 @@ def write_phenotypes(fam, phenotype=None, criteria=None, verbose=True,
 
 	if verbose:
 		name = 'phenotype' if covariates == False else 'covariates'
-		print("{} individuals written to '{}'\n{} were filtered out based on the criteria {}\nThe {} '{}' were included from clinical data.".format(N, output_path, len(inter_igm)-N,
-				criteria, name, phenotype))
+		source = 'viral' if phenotype=='all' else 'clinical'
+		print("{} individuals written to '{}'\n{} were filtered out based on the criteria {}\nThe {} '{}' were included from {} data."
+			.format(N, output_path, len(inter_igm)-N, criteria, name, phenotype, source))
 	#print(df)
 	if output_path == None: return df
 
