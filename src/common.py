@@ -300,7 +300,7 @@ def write_phenotypes(fam, phenotype=None, criteria=None, verbose=True,
 		file.write(df.to_csv(index=False, sep='\t'))
 
 
-def write_covariates(fam, criteria, output_path, host_pcs, virus_pcs) :
+def write_covariates(fam, output_path, host_pcs, virus_pcs, criteria=None) :
 	df = write_phenotypes(fam=fam, criteria=criteria, output_path=None, 
 		covariates=True, phenotype=setup.CLINICAL_COVARIATES)
 
@@ -311,7 +311,8 @@ def write_covariates(fam, criteria, output_path, host_pcs, virus_pcs) :
 
 	### Join the Pcs with the covariates dataframe
 	df = df.join(other=df_host_pca, on='IID')
-	#print(df)
+	
+	print(df)
 
 
 

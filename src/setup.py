@@ -62,6 +62,7 @@ PATH_NULL = PATH_DATA+"null"
 ########################################
 
 PATH_WORKING_PHENOTYPES = PATH_DATA+'working_pheno'
+PATH_WORKING_COVARIATES = PATH_DATA+'working_covariates'
 
 ########################################
 ########### DATA MANAGEMENT ############

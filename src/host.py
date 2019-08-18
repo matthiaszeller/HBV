@@ -65,22 +65,24 @@ def run_assoc(phenotypes=setup.PATH_WORKING_PHENOTYPES, exclude_chrs=setup.DEFAU
               file=setup.PATH_HOST_CLEAN_DATA, out=setup.PATH_HOST_CLEAN_DATA, 
               binary=False, plink2=True):
     """Call run_plink function together with --keep, --not-chr, --linear.
+    Note that computations are always 'forced' since extension is set to ' '
     Inputs: all the same as run_plink, except phenotypes.
             phenotypes: path to the file that contains plink phenotypes (also provided to --keep).
-            binary: If the phenotype is a binary var, must specify to plink that they are the phenotype, and not
-                    a case-control specification with --make-pheno <file> *.
+            binary: If the phenotype is a binary var, must use --logistic and --1 to make a case/control study.
     Output: (stdout, stderr)"""
-    t = exclude_chrs
+    t = ""
+    if exclude_chrs != None:
+        t += exclude_chrs + " "
     if binary:
         #t += " --make-pheno " + phenotypes + " '*'"
-        t += " --allow-no-sex"
-        t += " --logistic --1"
+        t += "--allow-no-sex "
+        t += "--logistic --1 "
     else:
-        t += " --linear"
-    t += " --pheno " + phenotypes
-    t += " --keep " + phenotypes
+        t += "--linear "
+    t += "--pheno " + phenotypes + " "
+    t += "--keep " + phenotypes
 
-    return run_plink(file=file, out=out, extension=' ', command=t, plink2=plink2,
+    return run_plink(file=file, out=file, extension=' ', command=t, plink2=plink2,
                      log_name = "assoc")
 
 
