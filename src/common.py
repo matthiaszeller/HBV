@@ -33,7 +33,7 @@ def manage_pickle(path, fun, args=None, verbose=True) :
 	If the file specified by 'path' exists, returns the content of the file.
 	Otherwise, the result of the function fun is returned AND stored in a binary file.
 
-	WARNING: keep in mind that the only way to redo computations is to delete the binary file."""
+	WARNING: keep in mind that the only way to rerun computations is to delete the binary file."""
 
 	# Test if the file already exists
 	if os.path.exists(path) :
@@ -185,21 +185,25 @@ def write_phenotypes(fam, phenotype=None, criteria=None, verbose=True,
 	"""Write plink-readable files for --assoc, --linear, --keep, --keep-fam options.
 	Either choose a phenotype form the clinical data, or output random columns (std normal).
 	You can use this function to write only the individuals identifiers.
-	This function is also called by write_covariates by setting covariates=True (don't do this yourself).
+	This function is also called by write_covariates by setting covariates=True (the user shouldn't do this).
+	Note: The NaN representation in the written file is defined in setup.PLINK_PHENOTYPE_NA_REP (since by default, pandas writes empty strings)
+
 	Inputs: - fam: path to the plink fam file (.fam extension can be omitted)
 			- phenotype: column name of the clinical DataFrame, or 'random'/'all', or 3-tuple (gene, pos, var). See covariates
 						 if None, only the identifiers are written (useful if we only use --keep)
 						 if 'all', all the viral amino acids are written
 			- criteria: 2-tuple (criteria, value). Ex to keep only asians: criteria=('RACE', 'ASIAN')
 			- output_path: file path to write the file in.
-			- covariates: if True, the phenotype param is a list of covariates in the clinical DataFrame.
+			- covariates: ADVICE: use write_covariates instead (i.e. let this param as False) !
+						  If True, the phenotype param is a list of covariates in the clinical DataFrame.
 						  this is used to provide plink a file to the --covar command.
 			- transform: transform the variable to write, 'invnorm' or 'center-scale'
-	Output: DataFrame if ouput_path==None, otherwise returns None."""
 
-	##################### PARAMETERS 
+	Output: DataFrame if ouput_path==None, otherwise returns None (and the DataFrame is written in a file)."""
 
-	if fam[-4:] != '.fam': fam += '.fam'
+	##################### PARAMETERS CHECKING
+
+	if fam[-4:] != '.fam': fam += '.fam' # we allow user to ommit extension -> add it afterwards
 	if phenotype == None and covariates != False:
 		raise ValueError("covariates parameter can't be True if no phenotype is provided")
 
@@ -276,6 +280,9 @@ def write_phenotypes(fam, phenotype=None, criteria=None, verbose=True,
 		# Map the ids to IGM format
 		df_viral.id = map_ids(df_viral.id)
 		df_viral.set_index('id', inplace=True)
+
+		#print(df_viral.info())
+		#print(df_viral.apply(pd.to_numeric).info())
 		# Join with DataFrame that will be written
 		df = df.join(other=df_viral, on='IID')
 	# Write a single amino acid
@@ -311,9 +318,8 @@ def write_phenotypes(fam, phenotype=None, criteria=None, verbose=True,
 			.format(N, output_path, len(inter_igm)-N, criteria, name, phenotype, source))
 	#print(df)
 	if output_path == None: return df
-
 	with open(output_path, 'w') as file:
-		file.write(df.to_csv(index=False, sep='\t'))
+		file.write(df.to_csv(index=False, sep='\t', na_rep=setup.PLINK_PHENOTYPE_NA_REP))
 
 
 def write_covariates(fam, output_path, host_pcs, virus_pcs, criteria=None) :
@@ -375,6 +381,9 @@ def map_ids(id_list):
 	# 	# see if this is in the DataFrame
 	# 	index = df[label].find(i)
 
+
+def extract_association_output():
+	pass
 
 
 ############################################################
