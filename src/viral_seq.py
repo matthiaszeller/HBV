@@ -1,4 +1,10 @@
 
+# Functions dedicated to viral data analysis.
+
+# ############################################################################### #
+# =================================== IMPORTS =================================== #
+# ############################################################################### #
+
 from sklearn.decomposition import PCA
 from sklearn.impute import SimpleImputer
 # must import explicitely since still experimental
@@ -7,12 +13,9 @@ from sklearn.impute import IterativeImputer
 import pandas as pd
 import numpy as np
 
-################### VIRAL SEQ MODULE
-
-# Aim: perform computations on viral sequencing data
-
-
-################### FUNCTIONS
+# ############################################################################### #
+# ================================== FUNCTIONS ================================== #
+# ############################################################################### #
 
 def collapse_variants(lst, pos=True):
 	"""Transform lst into a list of position in the viral genome.
@@ -72,7 +75,9 @@ def pca_impute(df, n_components, impute_strategy):
 	return (pcs, pca.transform(df_pca.transpose()))
 
 
-###################################
+# ############################################################################### #
+# =================================== TESTING =================================== #
+# ############################################################################### #
 
 if __name__ == '__main__' :
 

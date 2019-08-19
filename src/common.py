@@ -1,10 +1,10 @@
 
-####### MODULE COMMON
+# Module common put in a common place functions that can be used in different notebooks.
 
-# Aim: put together functions that can be useful in several contexts
+# ############################################################################### #
+# =================================== IMPORTS =================================== #
+# ############################################################################### #
 
-
-######## IMPORTS
 import os.path
 import pickle
 import seaborn as sns
@@ -16,7 +16,9 @@ if __name__ != '__main__' :
 	from src import setup
 	from src import stats
 
-####### FUNCTIONS
+# ############################################################################### #
+# ================================== FUNCTIONS ================================== #
+# ############################################################################### #
 
 def write_binary(path, obj):
 	with open(path, 'wb') as file:
@@ -24,6 +26,8 @@ def write_binary(path, obj):
 		pickler.dump(obj)
 
 	print("write_binary(): successfully written in '{}'".format(path))
+
+# ############################################################################### #
 
 def manage_pickle(path, fun, args=None, verbose=True) :
 	"""Store results of hard-to-compute processes. 
@@ -51,6 +55,7 @@ def manage_pickle(path, fun, args=None, verbose=True) :
 			pickler.dump(result)
 		return result
 
+# ############################################################################### #
 
 def plot_missing(path_report):
 	"""Plot a plink missing report. The input path must target .vmiss and .smiss files."""
@@ -65,7 +70,7 @@ def plot_missing(path_report):
 	sns.distplot(df_var.F_MISS.dropna(), kde=False, norm_hist=False, ax=ax[1])
 	ax[1].set_xlabel('rate of missing individuals'); ax[1].set_ylabel('number of variants');
 
-
+# ############################################################################### #
 
 def plot_pca(pcs, data, pc_plot_height, n_plots=1, 
 			 plt_ratio=True, figsize=(10,3), 
@@ -148,6 +153,7 @@ def plot_pca(pcs, data, pc_plot_height, n_plots=1,
 		plt.gca().legend(bbox_to_anchor=bbox_to_anchor, 
 			loc=2, borderaxespad=0.);
 
+# ############################################################################### #
 
 def convert_to_plink_phenotype(path, out, id_col_name, cols) :
 	"""Convert a pickled DataFrame into a plink-readable format. 
@@ -179,6 +185,7 @@ def convert_to_plink_phenotype(path, out, id_col_name, cols) :
 		file.write(txt)
 	print("Successfully written '{}'".format(out))
 
+# ############################################################################### #
 
 def write_phenotypes(fam, phenotype=None, criteria=None, verbose=True,
 					 output_path=None, covariates=False, transform=None):
@@ -321,6 +328,7 @@ def write_phenotypes(fam, phenotype=None, criteria=None, verbose=True,
 	with open(output_path, 'w') as file:
 		file.write(df.to_csv(index=False, sep='\t', na_rep=setup.PLINK_PHENOTYPE_NA_REP))
 
+# ############################################################################### #
 
 def write_covariates(fam, output_path, host_pcs, virus_pcs, criteria=None) :
 	"""Uses write_phenotypes to get the clinical data as covariates and then merges data with principal components.
@@ -354,6 +362,8 @@ def write_covariates(fam, output_path, host_pcs, virus_pcs, criteria=None) :
 	with open(output_path, 'w') as file :
 		file.write(df.to_csv(sep='\t', index=False))
 
+# ############################################################################### #
+
 def map_ids(id_list):
 	"""Provide a list of ids (IGM/GS) and get mapped ids (GS/IGM).
 	Automatically reads in the clinical dataframe"""
@@ -381,14 +391,14 @@ def map_ids(id_list):
 	# 	# see if this is in the DataFrame
 	# 	index = df[label].find(i)
 
+# ############################################################################### #
 
 def extract_association_output():
 	pass
 
-
-############################################################
-# ---------------------- TESTING ------------------------- #
-############################################################
+# ############################################################################### #
+# =================================== TESTING =================================== #
+# ############################################################################### #
 
 if __name__ == '__main__' :
 	import pandas as pd
