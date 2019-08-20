@@ -2,7 +2,7 @@
 
 ## About
 
-This repository is the result of my bachelor project as a three-week long internship in *Fellay Lab, EPFL* under the supervision of Sina Rüeger. This project aims to perform a genome-wide association study (GWAS) of HBV-infected individuals from different populations, i.e. find associations between host single nucleotide polymorphisms (SNPs) and viral amino acid variants. The project eventually focuses on a genetically-related asian subpopulation.
+This repository is the result of my bachelor project as a three-week long internship in *Fellay Lab, EPFL* under the supervision of Sina Rüeger. This project aims to perform a genome-to-genome  (G2G) study of HBV-infected individuals from different populations, i.e. find associations between host single nucleotide polymorphisms (SNPs) and viral amino acid variants. The project eventually focuses on a genetically-related asian subpopulation.
 
 ## Requirements
 
