@@ -38,14 +38,15 @@ def run_shell_command(cmd_lst, verbose=False) :
                                stderr=subprocess.PIPE, universal_newlines=True)
     return process.communicate()
 
-def run_plink(command, file, out, extension, plink2=True, verbose=True, force=False,
+# ############################################################################### #
+
+def run_plink(command, file, out, extension, plink2=True, verbose=True, force=setup.DEFAULT_FORCE_PLINK_COMPUTATIONS,
               log_name=None):
-    """Returns a tuple: (stdout, stderr).
+    """Returns a tuple: (stdout, stderr). If the output file already exists, does not run plink
     Note: command input must have the options/values separated by a single space"""
-    # Check is result already exist
     stdout, stderr = '', ''
     if extension[0] == '.': # avoid unexpected behaviour
-        stderr = 'ERROR: run_plink function, extension must not have a dot at beginning.'
+        stderr = 'ERROR: run_plink function, extension must NOT have a dot at beginning.'
     if force==False and os.path.exists(out+'.'+extension): 
         print("run_plink: command '{}', the file '{}' already exists (force is set to False)."
              .format(command, out+'.'+extension))
@@ -68,13 +69,14 @@ def run_plink(command, file, out, extension, plink2=True, verbose=True, force=Fa
     # Display errors
     if stderr and verbose : print(stderr)
     # Return the outputs
-    if log_name != None and not stderr:
+    if log_name != None:
         path_log = setup.PATH_PLINK_LOG+log_name+'.log'
         with open(path_log, 'w') as file:
             file.write(stdout)
         if verbose: print("Log written to '{}'".format(path_log))
     return stdout, stderr
 
+# ############################################################################### #
 
 def run_assoc(phenotypes=setup.PATH_WORKING_PHENOTYPES, exclude_chrs=setup.DEFAULT_CHROMOSOME_EXCLUSION_GWAS,
               file=setup.PATH_HOST_CLEAN_DATA, out=setup.PATH_HOST_CLEAN_DATA, 
@@ -114,6 +116,8 @@ def run_assoc(phenotypes=setup.PATH_WORKING_PHENOTYPES, exclude_chrs=setup.DEFAU
     return run_plink(file=file, out=out, extension=' ', command=t, plink2=plink2,
                      log_name = "assoc", verbose=verbose)
 
+# ############################################################################### #
+
 # TODO, IMPROVEMENT : 
 #   1. manually loop over each amino acid to have a better management of what's happenining
 #   2. reduce the data (output files) after each association
@@ -126,7 +130,7 @@ def run_gwas(path_phenotypes=setup.PATH_ASIANS_GWAS_PHENOTYPES, path_covariates=
     The list of file paths are STORED in setup.PATH_ASIANS_GWAS_RESULTS_LIST
 
     Inputs: - use_pheno: None, or string being the column name provided to --pheno-name
-                         Note that by default, plink will loop over each phenotype
+                         Warning: if None, you probably want to run write_phenotypes(phenotype='all') BEFORE RUNNING THIS FUNCTION.
             - hide_covars: True by default -> covariates-specific lines in output are dropped (False makes much bigger files !)
 
     Parameters passed to run_assoc() function :
@@ -157,7 +161,6 @@ def run_gwas(path_phenotypes=setup.PATH_ASIANS_GWAS_PHENOTYPES, path_covariates=
     ################################    Test all amino acids
     # ---- SERIOUS THINGS NOW ---- #    MORE INFORMATION: see notebook, features are exposed
     ################################    (GWAS asian individuals)
-
     # We basically want to loop over each possible amino acid manually.
     # 1. Detect all phenotypes / amino acids that will be tested (look in the phenotype file)
     with open(path_phenotypes, 'r') as file:
@@ -165,41 +168,61 @@ def run_gwas(path_phenotypes=setup.PATH_ASIANS_GWAS_PHENOTYPES, path_covariates=
     phenos = first_line.split('\t')[2:] # exclude FID, IID
 
     # 2. We loop over each amino acid
-    k = 0 # keep track of the remaining computations
+    k = 0; N = len(phenos) # keep track of the remaining computations
+    print("Preparing loop over {} amino acids".format(N))
+
+    #####################################3
+    ###################################
     warnings = []
+    messages = []
+    ####################################
+    #################################### FIND STH TO DO WITH IT (messages and warnings)
+
     file_suffix = '.glm.logistic'
     # Warning: must set float even if real type is int, in order to allow NaN values to be read
     dtype={'#CHROM':int, 'POS':int, 'REF':str, 'ALT':str, 'A1':str, 'TEST':str, 
             'OBS_CT':int, 'OR':float, 'LOG(OR)_SE':float, 'Z_STAT':float, 'P':float}
     # This DataFrame will store everything
     main_df = pd.DataFrame(columns=dtype)
-    for aa in phenos : # aa can be for example PC_149_A, X_5_K
 
-        ##### TEST TEST TEST TEST TEST TEST
-        if k > 2: return warnings
-        ##### TEST TEST TEST TEST TEST TEST
+    step = 5 
+    get_file_path = lambda aa: setup.PATH_ASIANS_GWAS_TMP_RESULTS+'.'+aa+file_suffix
+
+    for aa in phenos : # aa can be for example PC_149_A, X_5_K
+        k += 1
+        if k % step == 1 :
+            print('.', end='')
 
         # 1. Call that function for a single amino acid, store in temp dir
         o, e = run_gwas(use_pheno=aa, path_out=setup.PATH_ASIANS_GWAS_TMP_RESULTS, verbose = False)
-        warnings.append(e)
-        if os.path.exists(setup.PATH_ASIANS_GWAS_TMP_RESULTS+aa+file_suffix):
+        warnings.append("("+aa+") " + e)
+        if os.path.exists(get_file_path(aa)):
+            # Append the log to the concatenated log file
+            with open(setup.PATH_ASIANS_GWAS_TMP_RESULTS+'.log', 'r') as file:
+                content = file.read()
+            with open(setup.PATH_ASIANS_GWAS_TMP_LOGS_CONCAT, 'a+') as file:
+                file.write("\n" + content)
             # 2. Filter the output
-            df = pd.read_csv(setup.PATH_ASIANS_GWAS_TMP_RESULTS+aa+file_suffix, 
-                             sep='\t', dtype=dtype)
-            df = df[ df.P < setup.GWAS_TMP_FILTERING_P_THRESHOLD ]
+            #df = pd.read_csv(get_file_path(aa), sep='\t', dtype=dtype)
+            #df = df[ df.P < setup.GWAS_TMP_FILTERING_P_THRESHOLD ]
             # 3. Add the specific AA that was tested
-            df['AA'] = np.repeat(aa, df.shape[0])
-            print(df)
+            #df['AA'] = np.repeat(aa, df.shape[0])
+            #print(df)
         else:
             print(aa, "does not exist")
+    print()
+    # write warnings
+    concat_warnings = ""
+    for w in warnings:
+        concat_warnings += "\n" + w
+    with open(setup.PATH_ASIANS_GWAS_TMP_WARNINGS, 'w') as file:
+        file.write(concat_warnings)
 
-        k += 1
 
     
 # =============================================================================== #
 # ----------------------------- PLOTTING MANAGEMENT ----------------------------- #
 # =============================================================================== #
-
 
 def plot_plink_pca(path, n_pcs=0, scaled=True, h=3, hue_col=None,
                    path_hue=None, bbox_to_anchor=None):
