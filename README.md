@@ -2,12 +2,14 @@
 
 ## About
 
-This repository is the result of a three-week long internship in *Fellay Lab, EPFL* under the supervision of Sina Rüeger. This project aims to perform a genome-wide association study (GWAS) of HBV-infected individuals from different populations, i.e. find associations between host single nucleotide polymorphisms (SNPs) and viral amino acid variants. The project eventually focuses on a genetically-related asian subpopulation.
+This repository is the result of my bachelor project as a three-week long internship in *Fellay Lab, EPFL* under the supervision of Sina Rüeger. This project aims to perform a genome-wide association study (GWAS) of HBV-infected individuals from different populations, i.e. find associations between host single nucleotide polymorphisms (SNPs) and viral amino acid variants. The project eventually focuses on a genetically-related asian subpopulation.
 
 ## Requirements
 
 * plink version 1.9
 * plink version 2
+* [Pyhattan](https://github.com/Pudkip/Pyhattan)
+* stanard data science packages in Python (pandas, numpy, matplotlib, seaborn)
 * have the data stored in a structure that is consistent with the paths defined in the `src/setup.py` file.
 
 ## Automatically run notebooks
