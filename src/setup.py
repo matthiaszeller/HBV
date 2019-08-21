@@ -51,9 +51,14 @@ PATH_ASIANS_GWAS_PHENOTYPES = PATH_DATA + "phenotypes_asians_gwas.txt"
 
 PATH_GWAS_RESULTS = PATH_PLINK_DATA + "gwas/"
 PATH_ASIANS_GWAS_RESULTS = PATH_GWAS_RESULTS + "asians_gwas"
-PATH_ASIANS_GWAS_TMP_RESULTS = "/scratch/mazeller/gwas_tmp_results/asians_gwas"
-PATH_ASIANS_GWAS_TMP_LOGS_CONCAT = "/scratch/mazeller/gwas_tmp_results/concatenated_logs"
-PATH_ASIANS_GWAS_TMP_WARNINGS = "/scratch/mazeller/gwas_tmp_results/concatenated_warnings"
+PATH_ASIANS_GWAS_TMP = "/scratch/mazeller/gwas_tmp_results/"
+PATH_ASIANS_GWAS_TMP_RESULTS = PATH_ASIANS_GWAS_TMP+"asians_gwas"
+PATH_ASIANS_GWAS_TMP_LOGS_CONCAT = PATH_ASIANS_GWAS_TMP+"concatenated_logs"
+PATH_ASIANS_GWAS_TMP_WARNINGS = PATH_ASIANS_GWAS_TMP+"concatenated_warnings"
+PATH_ASIANS_GWAS_TMP_SUMMARY = PATH_GWAS_RESULTS+"pval_summary"
+PATH_ASIANS_GWAS_TMP_SUMMARY_SNPS = PATH_GWAS_RESULTS+"pval_summary_snps"
+PATH_ASIANS_GWAS_FILTERED = PATH_GWAS_RESULTS+"filtered_g2g"
+PATH_ASIANS_GWAS_RAND = PATH_GWAS_RESULTS+"asians_gwas_random"
 
 #PATH_ASIANS_GWAS_RESULTS_LIST = PATH_GWAS_RESULTS + "output_list"
 
