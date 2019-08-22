@@ -13,6 +13,9 @@ import numpy as np
 import pandas as pd
 import pickle
 import re # RegExps
+from matplotlib.colors import hex2color
+from assocplots import manhattan
+from assocplots.qqplot import *
 
 if __name__ != '__main__':
     from src import setup
@@ -219,6 +222,17 @@ def run_gwas(path_phenotypes=setup.PATH_ASIANS_GWAS_PHENOTYPES, path_covariates=
         file.write(concat_warnings)
 
 
+# ############################################################################### #
+
+def extract_ADD(path, output_path):
+    df = pd.read_csv(path, sep='\t')
+    df = df[ df.TEST == 'ADD' ]
+    split = path.split('.')
+    file_path = output_path + '.' + split[-3] + '.glm.logistic.ADD'
+    with open(file_path, 'w') as file:
+        file.write(df.to_csv(index=False, sep='\t'))
+    print('.', end='')
+    return file_path
     
 # =============================================================================== #
 # ----------------------------- PLOTTING MANAGEMENT ----------------------------- #
@@ -312,6 +326,52 @@ def plot_plink_pca(path, n_pcs=0, scaled=True, h=3, hue_col=None,
     # Reset position of the legend
     if bbox_to_anchor is not None and hue is not None:
         plt.gca().legend(bbox_to_anchor=bbox_to_anchor, 
+            loc=2, borderaxespad=0.);
+
+
+def gen_manhattan(path_list):
+    ################# COLORS
+    chrs = [str(i) for i in range(1,23)]
+    chrs_names = np.array([str(i) for i in range(1,23)])
+    chrs_names[1::2] = ''
+    colors = ['#1b9e77', "#d95f02", '#7570b3', '#e7298a']
+    # Converting from HEX into RGB
+    colors = [hex2color(colors[i]) for i in range(len(colors))]
+    ################# LOAD DAT
+    # TODO: manage better paths and amino acid name
+    aa_names = [ file.split('.')[-4] for file in path_list ]
+    list_p_series = []
+    for i, file in enumerate(path_list):
+        df = pd.read_csv(file, sep='\t')
+        list_p_series.append(df.P)
+        ################# PLOT
+        manhattan.manhattan(df['P'], df['POS'], df['#CHROM'].astype(str), '',
+               plot_type='single',
+               chrs_plot=[str(i) for i in range(1,23)],
+               chrs_names=chrs_names,
+               cut = 0,
+               title=aa_names[i],
+               xlabel='chromosome',
+               ylabel='-log10(p-value)',
+               lines= [],
+               #lines_colors=['r'],
+               colors = colors)
+        plt.show()
+
+    ## QQ PLOTS
+    N = len(aa_names)
+    fill_dens = [0.2] * N 
+    # ['#1b9e77', "#d95f02", '#7570b3']
+    colors = ['#c0392b', '#884ea0', '#2471a3', '#17a589', '#229954', '#d4ac0d', '#ca6f1e',
+              '#839192', '#17202a']
+    qqplot(list_p_series, 
+       aa_names, 
+       color=colors[0:N], 
+       fill_dens=fill_dens, 
+       error_type='theoretical', 
+       distribution='beta',
+       title='test')
+    plt.gca().legend(bbox_to_anchor=(1.1,0.1*N), 
             loc=2, borderaxespad=0.);
 
 
