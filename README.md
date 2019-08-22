@@ -31,7 +31,8 @@ The analyses is performed directly inside notebooks, and some of them store proc
 1. Joint viral and clinical data notebook: combine the two datasets. PCA colored with genotypes.
 1. Host genotype data preparation notebook: quality control, application of filters
 1. Host genotype data analysis notebook
-1. GWAS of asian subpopulation
+1. G2G of asian subpopulation: prepare new dataset, try monovariate models, implement multivariate models
+1. G2G computer: core multivariate models computation, analysis of results
 
 ### Documentation & tutorials
 
