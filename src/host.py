@@ -83,7 +83,7 @@ def run_plink(command, file, out, extension, plink2=True, verbose=True, force=se
 
 def run_assoc(phenotypes=setup.PATH_WORKING_PHENOTYPES, exclude_chrs=setup.DEFAULT_CHROMOSOME_EXCLUSION_GWAS,
               file=setup.PATH_HOST_CLEAN_DATA, out=setup.PATH_HOST_CLEAN_DATA, 
-              binary=False, plink2=True, covariates=None, extra=None, hide_covars=True, verbose=True):
+              binary=False, plink2=True, covariates=None, extra=None, hide_covars=False, verbose=True):
     """Call run_plink function together with --keep, --not-chr, or --linear. This function is used by run_gwas.
     Note that computations are always 'forced' since extension is set to ' '
     Inputs: - all the same as run_plink, except phenotypes.
@@ -155,6 +155,7 @@ def run_gwas(path_phenotypes=setup.PATH_ASIANS_GWAS_PHENOTYPES, path_covariates=
     if use_pheno != None:
         # Create extra command to select that specific phenotype
         extra = "--pheno-name " + use_pheno
+
         o, e = run_assoc(phenotypes=path_phenotypes, exclude_chrs=None, binary=True, 
                          covariates=path_covariates, plink2=True, extra=extra,
                          file=setup.PATH_ASIANS_GWAS, out=path_out, hide_covars=hide_covars,
@@ -163,7 +164,7 @@ def run_gwas(path_phenotypes=setup.PATH_ASIANS_GWAS_PHENOTYPES, path_covariates=
 
     ################################    Test all amino acids
     # ---- SERIOUS THINGS NOW ---- #    MORE INFORMATION: see notebook, features are exposed
-    ################################    (GWAS asian individuals)
+    ################################    (G2G asian individuals)
     # We basically want to loop over each possible amino acid manually.
     # 1. Detect all phenotypes / amino acids that will be tested (look in the phenotype file)
     with open(path_phenotypes, 'r') as file:
@@ -370,7 +371,7 @@ def gen_manhattan(path_list):
        fill_dens=fill_dens, 
        error_type='theoretical', 
        distribution='beta',
-       title='test')
+       title='QQ plots')
     plt.gca().legend(bbox_to_anchor=(1.1,0.1*N), 
             loc=2, borderaxespad=0.);
 
