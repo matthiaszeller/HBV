@@ -9,6 +9,7 @@ This repository is the result of my bachelor project as a three-week long intern
 * plink version 1.9
 * plink version 2
 * [Pyhattan](https://github.com/Pudkip/Pyhattan)
+* [assocplots](https://github.com/khramts/assocplots)
 * stanard data science packages in Python (pandas, numpy, matplotlib, seaborn)
 * have the data stored in a structure that is consistent with the paths defined in the `src/setup.py` file.
 
@@ -32,7 +33,7 @@ The analyses is performed directly inside notebooks, and some of them store proc
 1. Host genotype data preparation notebook: quality control, application of filters
 1. Host genotype data analysis notebook
 1. G2G of asian subpopulation: prepare new dataset, try monovariate models, implement multivariate models
-1. G2G computer: core multivariate models computation, analysis of results
+1. G2G computer: multivariate models computation, analysis of results
 
 ### Documentation & tutorials
 
