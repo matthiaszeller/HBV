@@ -321,6 +321,7 @@ def write_phenotypes(fam, phenotype=None, criteria=None, verbose=True,
 	if verbose:
 		name = 'phenotype' if covariates == False else 'covariates'
 		source = 'viral' if phenotype=='all' else 'clinical'
+		if type(phenotype) == tuple: source = 'viral'
 		print("{} individuals written to '{}'\n{} were filtered out based on the criteria {}\nThe {} '{}' were included from {} data."
 			.format(N, output_path, len(inter_igm)-N, criteria, name, phenotype, source))
 	#print(df)

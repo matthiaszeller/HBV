@@ -330,7 +330,7 @@ def plot_plink_pca(path, n_pcs=0, scaled=True, h=3, hue_col=None,
             loc=2, borderaxespad=0.);
 
 
-def gen_manhattan(path_list):
+def gen_manhattan(path_list, threshold=None):
     ################# COLORS
     chrs = [str(i) for i in range(1,23)]
     chrs_names = np.array([str(i) for i in range(1,23)])
@@ -357,6 +357,9 @@ def gen_manhattan(path_list):
                lines= [],
                #lines_colors=['r'],
                colors = colors)
+        if threshold != None :
+            minlogthreshold = - np.log10(threshold)
+            plt.plot([0, 5000000000], [minlogthreshold,minlogthreshold])
         plt.show()
 
     ## QQ PLOTS
@@ -374,6 +377,7 @@ def gen_manhattan(path_list):
        title='QQ plots')
     plt.gca().legend(bbox_to_anchor=(1.1,0.1*N), 
             loc=2, borderaxespad=0.);
+    plt.grid(linestyle='--')
 
 
 # ############################################################################### #

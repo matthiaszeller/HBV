@@ -49,6 +49,7 @@ PATH_ASIANS_GWAS = PATH_PLINK_DATA+"asians_gwas"
 PATH_ASIANS_GWAS_COVARIATES = PATH_DATA + "covariates_asians_gwas.txt"
 PATH_ASIANS_GWAS_PHENOTYPES = PATH_DATA + "phenotypes_asians_gwas.txt"
 
+PATH_GWAS_FINAL_RESULTS = PATH_DATA+"sig_associations.txt"
 PATH_GWAS_RESULTS = PATH_PLINK_DATA + "gwas/"
 PATH_ASIANS_GWAS_RESULTS = PATH_GWAS_RESULTS + "asians_gwas"
 PATH_ASIANS_GWAS_TMP = "/scratch/mazeller/gwas_tmp_results/"
