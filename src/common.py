@@ -72,7 +72,7 @@ def plot_missing(path_report):
 
 # ############################################################################### #
 
-def plot_pca(pcs, data, pc_plot_height, n_plots=1, 
+def plot_pca(pcs, data, pc_plot_height=3, n_plots=1, 
 			 plt_ratio=True, figsize=(10,3), 
 			 hue=None, scaled_only=False, bbox_to_anchor=None,
 			 singular_values=True):
@@ -139,6 +139,7 @@ def plot_pca(pcs, data, pc_plot_height, n_plots=1,
 		#ax.scatter(x=pcs.components_[2*k], y=pcs.components_[2*k+1]);
 		# Put a legend only if it's the last plot
 		lg = False if k<n_plots-1 else 'brief'
+		plt.grid(linestyle='--', alpha=0.5)
 		sns.scatterplot(x=df_pca[2*k], y=df_pca[2*k+1],
 						ax=ax, hue=hue, legend=lg)
 		xlabel, ylabel = get_labels(k, 
