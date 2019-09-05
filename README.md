@@ -13,14 +13,6 @@ This repository is the result of my bachelor project as a three-week long intern
 * stanard data science packages in Python (pandas, numpy, matplotlib, seaborn)
 * have the data stored in a structure that is consistent with the paths defined in the `src/setup.py` file.
 
-## Automatically run notebooks
-
-Method to execute all notebooks in order (!) and output the result as notebooks converted to html. Make sure the data is consistent with the paths defined in the setup file. Note that running all notebooks can take a while. Moreover, you will probably not be able to run it on a computer that has only a few cores and a small amount of RAM, especially for the last notebook.
-
-1. `cd` into the root directory of the project
-1. run the bash script `src/run.sh`
-1. look at the results in the `results/` directory
-
 ## Project structure
 
 The analyses is performed directly inside notebooks, and some of them store processed data. Thus the order of the notebooks (see below) matters. One can simply automatically run notebooks (see above) once the setup file is consistently defined. 
