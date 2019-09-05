@@ -225,11 +225,14 @@ def run_gwas(path_phenotypes=setup.PATH_ASIANS_GWAS_PHENOTYPES, path_covariates=
 
 # ############################################################################### #
 
-def extract_ADD(path, output_path):
+def extract_ADD(path, output_path, binary=True):
     df = pd.read_csv(path, sep='\t')
     df = df[ df.TEST == 'ADD' ]
     split = path.split('.')
-    file_path = output_path + '.' + split[-3] + '.glm.logistic.ADD'
+    if binary:
+        file_path = output_path + '.' + split[-3] + '.glm.logistic.ADD'
+    else:
+        file_path = output_path + '.' + split[-3] + '.glm.linear.ADD'
     with open(file_path, 'w') as file:
         file.write(df.to_csv(index=False, sep='\t'))
     print('.', end='')
@@ -271,7 +274,7 @@ def plot_plink_pca(path, n_pcs=0, scaled=True, h=3, hue_col=None,
     for v in content[0:-1]: # the last item is empty (the file ends with '\n')
         vals.append(float(v))
     # Make the plot of eigenvalues
-    plt.figure(figsize=(4,2))
+    plt.figure(figsize=(5, 3))
     sns.barplot(x=np.arange(1, len(vals)+1), y = vals)
     plt.xlabel('Principal components'); plt.ylabel('Eigenvalue')
     # Compute ratios of explained variance
@@ -318,6 +321,7 @@ def plot_plink_pca(path, n_pcs=0, scaled=True, h=3, hue_col=None,
         fig, ax = plt.subplots(1,1, figsize=(width, h))
         # Figure out if we must plot the legend for this subplot
         lg = False if i_p < N_plots-1 else 'brief'
+        plt.grid(linestyle='--', alpha=0.5)
         # Scatter plot
         sns.scatterplot(x=df_pca[txt_pcs[i]], y=df_pca[txt_pcs[i+1]], hue=hue, legend=lg)
         # Axe labels
@@ -330,7 +334,11 @@ def plot_plink_pca(path, n_pcs=0, scaled=True, h=3, hue_col=None,
             loc=2, borderaxespad=0.);
 
 
-def gen_manhattan(path_list, threshold=None):
+def gen_manhattan(path_list, threshold=None, titles=None):
+    """Generate separated manhattan plots and one combined QQ plot.
+    Input: - path_list is a Python list containing paths to the plink .glm.logistic or .glm.linear files.
+           - threshold: draw a threshold line, 0.0 < threshold < 1.0
+           - titles: the title are only recognized for amino acid with filenames in the 'xxx.glm.logistic.ADD' format"""
     ################# COLORS
     chrs = [str(i) for i in range(1,23)]
     chrs_names = np.array([str(i) for i in range(1,23)])
@@ -341,6 +349,8 @@ def gen_manhattan(path_list, threshold=None):
     ################# LOAD DAT
     # TODO: manage better paths and amino acid name
     aa_names = [ file.split('.')[-4] for file in path_list ]
+    if titles != None:
+        aa_names = titles
     list_p_series = []
     for i, file in enumerate(path_list):
         df = pd.read_csv(file, sep='\t')
