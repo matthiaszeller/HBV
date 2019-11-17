@@ -17,6 +17,12 @@ This repository is the result of my bachelor project as a three-week long intern
 
 The analyses is performed directly inside notebooks, and some of them store processed data. Thus the order of the notebooks (see below) matters. One can convert the notebooks to PDF with `nbconvert`, optionally with `--execute` to re-run the notebooks.
 
+### Data desription & format
+
+* Clinical data: `.csv` file
+* Viral sequencing data: `.csv` file
+* Host exome sequencing data: `.ped` and `.map` files
+
 ### Data processing & analysis
 
 All computations are performed in notebooks, which one has to run in the following order:
